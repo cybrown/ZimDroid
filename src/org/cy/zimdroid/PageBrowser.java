@@ -43,27 +43,33 @@ public class PageBrowser extends Activity implements OnItemClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("LIFECYCLE", "Activity MainActivity onCreate");
+        setContentView(R.layout.activity_page_browser);
+        lstNotes = (ListView)(findViewById(R.id.lstNotes));
+        lstNotes.setOnItemClickListener(this);
         
         long current_id = 0;
+        
+        // Get Path to Notebook
         String notebook_uri = null;
         if (savedInstanceState != null) {
         	current_id = savedInstanceState.getLong("currentPageId");
         	notebook_uri = savedInstanceState.getString("notebookUri");
         }
         
-        setContentView(R.layout.activity_page_browser);
-        lstNotes = (ListView)(findViewById(R.id.lstNotes));
-        lstNotes.setOnItemClickListener(this);
-        
+        // Create default path to notebook
         if (notebook_uri == null) {
         	String sdcard_path = Environment.getExternalStorageDirectory().getAbsolutePath();
             basenames = new LinkedList<String>();
             notebook_uri = sdcard_path + "/zim";
         }
-		this.notebook = new Notebook(notebook_uri);
-		
-		this.notebook.open();
-		
+        // If app notebook is null, create it
+		if (((ZimdroidApplication)this.getApplication()).getNotebook() == null) {
+			((ZimdroidApplication)this.getApplication()).setNotebook(new Notebook(notebook_uri));
+			((ZimdroidApplication)this.getApplication()).getNotebook().open();
+		}
+		this.notebook = ((ZimdroidApplication)this.getApplication()).getNotebook();
+		if (!this.notebook.isOpened())
+			this.notebook.open();
 		
 		// Open last opened page
 		Page current_page;
@@ -95,7 +101,6 @@ public class PageBrowser extends Activity implements OnItemClickListener {
     @Override
     public void onDestroy() {
         Log.d("LIFECYCLE", "Activity MainActivity onDestroy");
-    	this.notebook.close();
     	super.onDestroy();
     }
 
@@ -103,7 +108,7 @@ public class PageBrowser extends Activity implements OnItemClickListener {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
+        getMenuInflater().inflate(R.menu.activity_page_browser, menu);
         return true;
     }
 	
@@ -111,8 +116,10 @@ public class PageBrowser extends Activity implements OnItemClickListener {
 	public void onBackPressed() {
 		if (this.currentPage == null)
 			return;
-		if (this.currentPage.getParent() == null)
+		if (this.currentPage.getParent() == null) {
+			this.notebook.close();
 			this.finish();
+		}
 		this.setCurrentPage(this.currentPage.getParent());
 	}
 	
@@ -120,7 +127,6 @@ public class PageBrowser extends Activity implements OnItemClickListener {
 	
 	public void btn_open_click(View v) {
 		Intent intent = new Intent(this, ContentPad.class);
-		intent.putExtra("notebookPath", this.notebook.getUri());
 		intent.putExtra("pageId", this.currentPage.getId());
 		startActivity(intent);
 	}

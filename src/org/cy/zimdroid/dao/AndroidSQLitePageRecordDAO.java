@@ -145,4 +145,9 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		cursor.close();
 		return prl;
 	}
+	
+	public void finalize() {
+		if (this.db != null)
+			this.db.close();
+	}
 }

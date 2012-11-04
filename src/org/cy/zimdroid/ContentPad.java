@@ -1,6 +1,6 @@
 package org.cy.zimdroid;
 
-import org.cy.zimjava.entity.Notebook;
+import org.cy.zimjava.entity.Content;
 import org.cy.zimjava.entity.Page;
 import org.cy.zimjava.util.ZimSyntax;
 
@@ -12,6 +12,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 /**
@@ -24,34 +25,40 @@ import android.widget.ToggleButton;
 public class ContentPad extends Activity {
 
 	// Intent
-	Notebook notebook;
-	Page page;
+	private Page page;
+	
+	// TODO Set state to these properties
+	private boolean show_source;
+	private boolean body_is_modified;
+	private String body;
+	
 	
 	// Activities Life Cycle
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("LIFECYCLE", "Activity ContentPad onCreate");
+        this.show_source = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_pad);
-        Log.d("CY", this.getIntent().getStringExtra("notebookPath"));
+        TextView tvContentPadPath = (TextView)findViewById(R.id.tvContentPadPath);
         Log.d("CY", Long.toString(this.getIntent().getLongExtra("pageId", 42)));
-        this.notebook = new Notebook(this.getIntent().getStringExtra("notebookPath"));
-        this.notebook.open();
-        this.page = this.notebook.findById(this.getIntent().getLongExtra("pageId", 42));
+        this.page = ((ZimdroidApplication)this.getApplication()).getNotebook().findById(this.getIntent().getLongExtra("pageId", 42));
+        tvContentPadPath.setText(this.page.getPath().toString());
+        this.body = this.page.hasContent() ? this.page.getContent().getBody() : "";
         this.showBody();
     }
     
     @Override
-    public void onStart() {
-        Log.d("LIFECYCLE", "Activity ContentPad onStart");
-        super.onStart();
+    public void onPause() {
+        Log.d("LIFECYCLE", "Activity ContentPad onPause");
+    	this.saveBodyToPage();
+    	super.onPause();
     }
     
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         Log.d("LIFECYCLE", "Activity ContentPad onDestroy");
-    	this.notebook.close();
     	super.onDestroy();
     }
 
@@ -66,33 +73,42 @@ public class ContentPad extends Activity {
     // Events
     
     public void btn_source_click(View v) {
-    	boolean on = ((ToggleButton) v).isChecked();
-    	if (on) {
-    		
-    	}
-    	else {
-    		
-    	}
+    	this.show_source = ((ToggleButton) v).isChecked();
+    	this.showBody();
     }
     
     // Private methods
     
     protected void showBody() {
-    	EditText txtBody = new EditText(this);
     	LinearLayout lytViewer = (LinearLayout)findViewById(R.id.lytViewer);
-        txtBody.setText(this.page.getContent().getBody());
-        
-        WebView wv = new WebView(this);
-        Log.i("CY", ZimSyntax.toHtml(this.page.getContent().getBody()));
-        wv.loadData(ZimSyntax.toHtml(this.page.getContent().getBody()), "text/html", "utf-16");
-        
-        View viewToAdd;
-        
-        //viewToAdd = txtBody;
-        viewToAdd = wv;
-        
+        View viewToAdd = null;
+        if (this.show_source) {
+        	EditText txtBody = new EditText(this);
+            txtBody.setText(this.body);
+            viewToAdd = txtBody;
+            this.body_is_modified = true;
+        }
+        else {
+        	if (this.body_is_modified) {
+        		EditText tmp = (EditText)lytViewer.getChildAt(0);
+        		this.body = tmp.getText().toString();
+        		this.body_is_modified = false;
+        	}
+        	WebView wv = new WebView(this);
+            wv.loadData(ZimSyntax.toHtml(this.body), "text/html", "ISO-8859-1");
+            viewToAdd = wv;
+        }
+
     	lytViewer.removeAllViews();
     	lytViewer.addView(viewToAdd);
     }
     
+    protected void saveBodyToPage() {
+    	if (!this.page.hasContent() && (!this.body.equals(""))) {
+    		this.page.setContent(new Content());
+    	}
+    	else if (this.page.hasContent()) {
+    		this.page.getContent().setBody(this.body);
+    	}
+    }
 }

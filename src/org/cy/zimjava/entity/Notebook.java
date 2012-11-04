@@ -19,11 +19,13 @@ public class Notebook {
 	
 	public void open() {
 		this.pdao = new PageDAO(this.uri);	// TODO Verify URI
+		this.opened = true;
 	}
 	
 	public void close() {
 		this.pdao.saveAll();
 		this.pdao = null;
+		this.opened = false;
 	}
 	
 	public String getUri() {
