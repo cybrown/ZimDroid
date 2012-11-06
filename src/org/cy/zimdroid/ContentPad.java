@@ -25,12 +25,12 @@ import android.widget.ToggleButton;
 public class ContentPad extends Activity {
 
 	// Intent
-	private Page page;	// long pageId
+	private Page page;	// AS long pageId
 	
 	// Bundle
-	private boolean show_source;
-	private boolean body_is_modified;
-	private String body;
+	private boolean showSource;
+	private boolean bodyIsModified;
+	private String body;	// FROM this.getBody()
 	
 	
 	// Activities Life Cycle
@@ -50,16 +50,16 @@ public class ContentPad extends Activity {
         
         // Restore state from bundle
         if (savedInstanceState == null) {
-            this.show_source = false;
+            this.showSource = false;
             this.body = this.page.hasContent() ? this.page.getContent().getBody() : "";
             this.showBody();
         }
         else {
-            this.show_source = savedInstanceState.getBoolean("show_source");
+            this.showSource = savedInstanceState.getBoolean("showSource");
             this.body = savedInstanceState.getString("body");
             this.showBody();
-            this.body_is_modified = savedInstanceState.getBoolean("body_is_modified");
-            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.show_source);
+            this.bodyIsModified = savedInstanceState.getBoolean("bodyIsModified");
+            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.showSource);
         }
         
         tvContentPadPath.setText(this.page.getPath().toString());
@@ -67,9 +67,9 @@ public class ContentPad extends Activity {
     
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean("show_source", this.show_source);
+        savedInstanceState.putBoolean("showSource", this.showSource);
         savedInstanceState.putString("body", this.getCurrentBody());
-        savedInstanceState.putBoolean("body_is_modified", this.body_is_modified);
+        savedInstanceState.putBoolean("bodyIsModified", this.bodyIsModified);
     }
     
     @Override
@@ -96,7 +96,7 @@ public class ContentPad extends Activity {
     // Events
     
     public void btn_source_click(View v) {
-    	this.show_source = ((ToggleButton) v).isChecked();
+    	this.showSource = ((ToggleButton) v).isChecked();
     	this.showBody();
     }
     
@@ -108,7 +108,7 @@ public class ContentPad extends Activity {
 			Log.w("CY", "Should not be executed...");
 			return this.body;
 		}
-		else if (this.body_is_modified) {
+		else if (this.bodyIsModified) {
     		return ((EditText)lytViewer.getChildAt(0)).getText().toString();
     	}
     	else {
@@ -119,14 +119,14 @@ public class ContentPad extends Activity {
     protected void showBody() {
     	LinearLayout lytViewer = (LinearLayout)findViewById(R.id.lytViewer);
         View viewToAdd = null;
-        if (this.show_source) {
+        if (this.showSource) {
         	EditText txtBody = new EditText(this);
             txtBody.setText(this.body);
             viewToAdd = txtBody;
-            this.body_is_modified = true;
+            this.bodyIsModified = true;
         }
         else {
-        	this.body_is_modified = false;
+        	this.bodyIsModified = false;
         	this.body = this.getCurrentBody();
         	WebView wv = new WebView(this);
             wv.loadData(ZimSyntax.toHtml(this.body), "text/html", "ISO-8859-1");

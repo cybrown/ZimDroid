@@ -28,14 +28,17 @@ import android.widget.TextView;
  */
 public class PageBrowser extends Activity implements OnItemClickListener {
 	
-	// Persisted
+	// Application global
+	private Notebook notebook;
+	
+	// Bundle
 	private Page currentPage;
-	private Notebook notebook;	// to intent
 	
 	// Generated
 	private LinkedList<String> basenames;
 	private ListView lstNotes;
 	private ArrayAdapter<String> adapter;
+	
 	
 	// Activity Life Cycle
 	
