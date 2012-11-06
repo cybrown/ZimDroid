@@ -5,15 +5,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class ZimdroidSQLiteHelper extends SQLiteOpenHelper {
 
-	public ZimdroidSQLiteHelper(String path) {
-		super(null, null, null, 1);
-		this.path = path;
-		this.database = SQLiteDatabase.openOrCreateDatabase(path, null);
-	}
-
 	private SQLiteDatabase database;
 	private String path;
 	
+	public ZimdroidSQLiteHelper(String path) {
+		super(null, null, null, 1);
+		this.path = path;
+	}
+
 	@Override
 	public void onCreate(SQLiteDatabase arg0) {
 		// TODO Auto-generated method stub
@@ -30,7 +29,7 @@ public class ZimdroidSQLiteHelper extends SQLiteOpenHelper {
 	public SQLiteDatabase getReadableDatabase()
 	{
 	    database = SQLiteDatabase.openDatabase(path, null,
-	            SQLiteDatabase.OPEN_READONLY);
+	            SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.CREATE_IF_NECESSARY);
 	    return database;
 	}
 

@@ -11,6 +11,7 @@ import org.cy.zimjava.record.PageRecord;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 // TODO Check if db and root are not null
 
@@ -45,12 +46,6 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	}
 	
 	public boolean save(PageRecord pr) {
-		boolean insert_if_true;
-		// Verify existence of basename and parentid
-		Cursor cursor = this.db.query("pages", new String[]{"id"}, "basename = ? AND parent = ? and id != ?", new String[]{pr.getBasename(), Long.toString(pr.getParent()), Long.toString(pr.getId())}, null, null, null);
-		insert_if_true = cursor.getCount() == 0;
-		cursor.close();
-		
 		// Save to database
 		ContentValues cv = new ContentValues();
 		cv.put("basename", pr.getBasename());
@@ -66,7 +61,7 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		else
 			cv.put("childrenkey", pr.getChildrenkey());
 
-		if (insert_if_true) {
+		if (pr.getId() == 0) {
 			long last_id = this.db.insert("pages", null, cv);
 			if (last_id == -1)
 				return false;
