@@ -25,9 +25,9 @@ import android.widget.ToggleButton;
 public class ContentPad extends Activity {
 
 	// Intent
-	private Page page;
+	private Page page;	// long pageId
 	
-	// TODO Set state to these properties
+	// Bundle
 	private boolean show_source;
 	private boolean body_is_modified;
 	private String body;
@@ -38,15 +38,38 @@ public class ContentPad extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d("LIFECYCLE", "Activity ContentPad onCreate");
-        this.show_source = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_pad);
         TextView tvContentPadPath = (TextView)findViewById(R.id.tvContentPadPath);
-        Log.d("CY", Long.toString(this.getIntent().getLongExtra("pageId", 42)));
-        this.page = ((ZimdroidApplication)this.getApplication()).getNotebook().findById(this.getIntent().getLongExtra("pageId", 42));
+        long page_id = this.getIntent().getLongExtra("pageId", 0);
+        if (page_id == 0) {
+        	Log.e("CY", "Page Id from Intant for ContentPad activity must not be 0.");
+        	finish();
+        }
+        this.page = ((ZimdroidApplication)this.getApplication()).getNotebook().findById(page_id);
+        
+        // Restore state from bundle
+        if (savedInstanceState == null) {
+            this.show_source = false;
+            this.body = this.page.hasContent() ? this.page.getContent().getBody() : "";
+            this.showBody();
+        }
+        else {
+            this.show_source = savedInstanceState.getBoolean("show_source");
+            this.body = savedInstanceState.getString("body");
+            this.showBody();
+            this.body_is_modified = savedInstanceState.getBoolean("body_is_modified");
+            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.show_source);
+        }
+        
         tvContentPadPath.setText(this.page.getPath().toString());
-        this.body = this.page.hasContent() ? this.page.getContent().getBody() : "";
-        this.showBody();
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean("show_source", this.show_source);
+        savedInstanceState.putString("body", this.getCurrentBody());
+        savedInstanceState.putBoolean("body_is_modified", this.body_is_modified);
     }
     
     @Override
@@ -79,6 +102,20 @@ public class ContentPad extends Activity {
     
     // Private methods
     
+    protected String getCurrentBody() {
+		LinearLayout lytViewer = (LinearLayout)findViewById(R.id.lytViewer);
+		if (lytViewer == null) {
+			Log.w("CY", "Should not be executed...");
+			return this.body;
+		}
+		else if (this.body_is_modified) {
+    		return ((EditText)lytViewer.getChildAt(0)).getText().toString();
+    	}
+    	else {
+    		return this.body;
+    	}
+    }
+    
     protected void showBody() {
     	LinearLayout lytViewer = (LinearLayout)findViewById(R.id.lytViewer);
         View viewToAdd = null;
@@ -89,11 +126,8 @@ public class ContentPad extends Activity {
             this.body_is_modified = true;
         }
         else {
-        	if (this.body_is_modified) {
-        		EditText tmp = (EditText)lytViewer.getChildAt(0);
-        		this.body = tmp.getText().toString();
-        		this.body_is_modified = false;
-        	}
+        	this.body_is_modified = false;
+        	this.body = this.getCurrentBody();
         	WebView wv = new WebView(this);
             wv.loadData(ZimSyntax.toHtml(this.body), "text/html", "ISO-8859-1");
             viewToAdd = wv;

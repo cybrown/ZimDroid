@@ -47,7 +47,9 @@ public class PageBrowser extends Activity implements OnItemClickListener {
         lstNotes = (ListView)(findViewById(R.id.lstNotes));
         lstNotes.setOnItemClickListener(this);
         
+        // Var initialization
         long current_id = 0;
+        basenames = new LinkedList<String>();
         
         // Get Path to Notebook
         String notebook_uri = null;
@@ -59,7 +61,6 @@ public class PageBrowser extends Activity implements OnItemClickListener {
         // Create default path to notebook
         if (notebook_uri == null) {
         	String sdcard_path = Environment.getExternalStorageDirectory().getAbsolutePath();
-            basenames = new LinkedList<String>();
             notebook_uri = sdcard_path + "/zim";
         }
         // If app notebook is null, create it

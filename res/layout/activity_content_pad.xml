@@ -27,8 +27,8 @@
             android:checked="false"
             android:onClick="btn_source_click"
             android:text="Source"
-            android:textOff="TEXT"
-            android:textOn="SOURCE" />
+            android:textOff="SOURCE"
+            android:textOn="SAVE" />
 
     </RelativeLayout>
 
