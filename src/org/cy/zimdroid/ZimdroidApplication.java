@@ -14,6 +14,7 @@ public class ZimdroidApplication extends Application {
 		this.notebook_uri = uri;
 		this.notebook = new Notebook(this.notebook_uri);
 		this.isNotebookNeeded++;
+		Log.d("CY", "Creating Notebook, remaining uses: " + Integer.toString(this.isNotebookNeeded));
 		return this.notebook;
 	}
 	
@@ -23,19 +24,20 @@ public class ZimdroidApplication extends Application {
 	 * @throws Exception
 	 */
 	public Notebook getNotebook() throws Exception {
+		// TODO Review condition of recreation
 		if ((this.notebook_uri == null) && (this.notebook == null))
 			throw new Exception("Notebook not created.");
-		Log.d("CY", "getNotebook: " + Integer.toString(this.isNotebookNeeded));
 		if (this.isNotebookNeeded == 0) {
 			return this.createNotebook(this.notebook_uri);
 		}
 		this.isNotebookNeeded++;
+		Log.d("CY", "Getting Notebook, remaining uses: " + Integer.toString(this.isNotebookNeeded));
 		return notebook;
 	}
 	
 	public void releaseNotebook() {
-		Log.d("CY", "releaseNotebook: " + Integer.toString(this.isNotebookNeeded));
 		this.isNotebookNeeded--;
+		Log.d("CY", "Releasing Notebook, remaining uses: " + Integer.toString(this.isNotebookNeeded));
 		if (this.isNotebookNeeded == 0) {
 			// Do something to destroy notebook
 			this.notebook.close();
