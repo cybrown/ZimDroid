@@ -3,9 +3,10 @@ package org.cy.zimjava.entity;
 import java.util.List;
 
 import org.cy.zimjava.dao.PageDAO;
+import org.cy.zimjava.util.IContentHost;
 import org.cy.zimjava.util.Path;
 
-public class Page {
+public class Page implements IContentHost {
 	
 	public String toString() {
 		return this.basename + ":\n" + this.getContent();
@@ -23,7 +24,7 @@ public class Page {
 		this.is_content_loaded = false;
 		this.is_parent_loaded = false;
 		this.is_path_loaded = false;
-		this.content = new Content();
+		this.content = new Content(this);
 	}
 	
 	private long id;
@@ -33,16 +34,26 @@ public class Page {
 	private Content content;
 	private List<Page> children;
 	private Path path;
+	private boolean modified;
 	
+	public boolean isModified() {
+		return modified;
+	}
+
+	public void setModified(boolean modified) {
+		this.modified = modified;
+	}
+
 	public long getParentId() {
 		return parentId;
 	}
 
 	public void setParentId(long parentId) {
+		this.setModified(true);
 		this.parentId = parentId;
 	}
 
-	// Lazey loading states
+	// Lazy loading states
 	private boolean is_parent_loaded;
 	private boolean is_content_loaded;
 	private boolean is_children_loaded;
@@ -57,6 +68,7 @@ public class Page {
 	}
 
 	public void setId(long id) {
+		this.setModified(true);
 		this.id = id;
 	}
 
@@ -68,6 +80,7 @@ public class Page {
 		if (this.basename == null)
 			this.basename = basename;
 		else if (!this.basename.equals(basename)) {
+			this.setModified(true);
 			Path new_path = this.getPath().clone();
 			new_path.getPath().removeLast();
 			new_path.add(basename);
@@ -86,6 +99,7 @@ public class Page {
 	}
 
 	public void setParent(Page parent) {
+		this.setModified(true);
 		this.is_parent_loaded = true;
 		this.onBeforeChangeParent(parent);
 		this.parent = parent;
@@ -108,11 +122,13 @@ public class Page {
 	}
 
 	public void setContent(Content content) {
+		this.setModified(true);
 		this.is_content_loaded = true;
 		this.content = content;
 	}
 	
 	public void setBody(String text) {
+		this.setModified(true);
 		this.is_content_loaded = true;
 		this.content.setBody(text);
 	}
@@ -130,6 +146,7 @@ public class Page {
 	}
 	
 	public void invalidateChildren() {
+		this.setModified(true);
 		this.is_children_loaded = false;
 		this.children = null;
 	}

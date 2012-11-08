@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.cy.zimjava.entity.Content;
+import org.cy.zimjava.util.IContentHost;
 import org.cy.zimjava.util.Path;
 
 public class ContentDAO {
@@ -18,7 +19,7 @@ public class ContentDAO {
 		this.root = root;
 	}
 	
-	public Content load(Path path) {
+	public Content load(Path path, IContentHost host) {
 		Content res = null;
 		String fpath = path.toFilePath(this.root);
 		
@@ -30,7 +31,7 @@ public class ContentDAO {
 				sb.append(line);
 				sb.append("\n"); // TODO End Of Line
 			}
-			res = new Content();
+			res = new Content(host);
 			res.parseText(sb.toString());
 			br.close();
 		} catch (FileNotFoundException e) {

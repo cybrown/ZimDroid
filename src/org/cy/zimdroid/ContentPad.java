@@ -126,8 +126,8 @@ public class ContentPad extends Activity {
             this.bodyIsModified = true;
         }
         else {
-        	this.bodyIsModified = false;
         	this.body = this.getCurrentBody();
+        	this.bodyIsModified = false;
         	WebView wv = new WebView(this);
             wv.loadData(ZimSyntax.toHtml(this.body), "text/html", "ISO-8859-1");
             viewToAdd = wv;
@@ -139,7 +139,7 @@ public class ContentPad extends Activity {
     
     protected void saveBodyToPage() {
     	if (!this.page.hasContent() && (!this.body.equals(""))) {
-    		this.page.setContent(new Content());
+    		this.page.setContent(new Content(this.page));
     	}
     	else if (this.page.hasContent()) {
     		this.page.getContent().setBody(this.body);

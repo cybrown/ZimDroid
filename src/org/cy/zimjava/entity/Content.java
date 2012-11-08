@@ -3,12 +3,14 @@ package org.cy.zimjava.entity;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.cy.zimjava.util.IContentHost;
+
 public class Content {
 
 	private Map<String, String> headers;
 	private String body;
 	
-	public Content() {
+	public Content(IContentHost host) {
 		this.headers = new HashMap<String, String>();
 		this.body = "";
 	}

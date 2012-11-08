@@ -78,6 +78,7 @@ public class PageDAO {
 			PageRecord pr = this.prd.findById(id);
 			if (pr != null) {
 				Pagerecord2Page(pr, res);
+				res.setModified(false);
 			}
 			System.out.println("Loading " + res.getPath().toString());
 		}
@@ -114,6 +115,7 @@ public class PageDAO {
 				continue;
 			}
 			Pagerecord2Page(pr, tmp);
+			tmp.setModified(false);
 			list.add(tmp);
 		}
 		return list;
@@ -131,6 +133,8 @@ public class PageDAO {
 	}
 	
 	public boolean save(Page page) {
+		if (!page.isModified())
+			return false;
 		System.out.println("Saving " + page.getPath().toString());
 		PageRecord pr = page.getId() == 0
 			? new PageRecord()
@@ -142,11 +146,12 @@ public class PageDAO {
 			this.saveContent(page);
 			return true;
 		}
+		page.setModified(false);
 		return false;
 	}
 	
 	public boolean loadContent(Page page) {
-		Content c = this.cdao.load(page.getPath());
+		Content c = this.cdao.load(page.getPath(), page);
 		page.setContent(c);
 		return true;
 	}
