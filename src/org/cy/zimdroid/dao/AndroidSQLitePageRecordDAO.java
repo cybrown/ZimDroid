@@ -11,7 +11,6 @@ import org.cy.zimjava.record.PageRecord;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 // TODO Check if db and root are not null
 
