@@ -138,7 +138,7 @@ public class ContentPad extends Activity {
         	this.body = this.getCurrentBody();
         	this.bodyIsModified = false;
         	WebView wv = new WebView(this);
-            wv.loadData(ZimSyntax.toHtml(this.body), "text/html", "ISO-8859-1");
+            wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
             viewToAdd = wv;
         }
 
