@@ -97,6 +97,15 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	}
 	
 	public Collection<PageRecord> findByParentId(long parent) {
+		return this.backendFindByParentId(parent, null);
+	}
+	
+	@Override
+	public Collection<PageRecord> findByParentId(long parent, boolean ordered) {
+		return this.backendFindByParentId(parent, ordered ? "basename" : "basename DESC");
+	}
+		
+	protected Collection<PageRecord> backendFindByParentId(long parent, String order) {
 		LinkedList<PageRecord> prl = new LinkedList<PageRecord>();
 		// If id is 0, do not verify parents properties
 		if (parent != 0) {
@@ -114,7 +123,7 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 			}
 		}
 		
-		Cursor cursor = this.db.query("pages", new String[]{"id", "basename", "haschildren", "hascontent", "contentkey", "childrenkey"}, "parent = ?", new String[]{Long.toString(parent)}, null, null, null);
+		Cursor cursor = this.db.query("pages", new String[]{"id", "basename", "haschildren", "hascontent", "contentkey", "childrenkey"}, "parent = ?", new String[]{Long.toString(parent)}, null, null, order);
 		if (cursor.moveToFirst()) {
 			do {
 				id = cursor.getLong(0);
@@ -144,4 +153,5 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		if (this.db != null)
 			this.db.close();
 	}
+
 }

@@ -7,4 +7,5 @@ import org.cy.zimjava.record.PageRecord;
 
 public interface IPageRecordDAO extends IRecordDAO<PageRecord> {
 	public Collection<PageRecord> findByParentId(long parent);
+	public Collection<PageRecord> findByParentId(long parent, boolean ordered);
 }

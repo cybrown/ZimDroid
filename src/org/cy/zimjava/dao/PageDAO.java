@@ -102,7 +102,7 @@ public class PageDAO {
 				list.add(p);
 			}
 		}
-		for (PageRecord pr: this.prd.findByParentId(parent)) {
+		for (PageRecord pr: this.prd.findByParentId(parent, true)) {
 			tmp = this.findById(pr.getId());
 			if (tmp == null) {
 				tmp = new Page(this);
