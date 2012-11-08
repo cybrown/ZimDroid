@@ -6,26 +6,26 @@ public class Notebook {
 
 	private String uri;
 	private PageDAO pdao;
-	private boolean opened;
+	private boolean open;
 	
 	public Notebook(String uri) {
 		this.uri = uri;
-		this.opened = false;
+		this.open = false;
 	}
 	
-	public boolean isOpened() {
-		return this.opened;
+	public boolean isOpen() {
+		return this.open;
 	}
 	
 	public void open() {
 		this.pdao = new PageDAO(this.uri);	// TODO Verify URI
-		this.opened = true;
+		this.open = true;
 	}
 	
 	public void close() {
 		this.pdao.saveAll();
 		this.pdao = null;
-		this.opened = false;
+		this.open = false;
 	}
 	
 	public String getUri() {

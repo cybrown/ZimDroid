@@ -13,6 +13,7 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 /**
@@ -46,7 +47,14 @@ public class ContentPad extends Activity {
         	Log.e("CY", "Page Id from Intant for ContentPad activity must not be 0.");
         	finish();
         }
-        this.page = ((ZimdroidApplication)this.getApplication()).getNotebook().findById(page_id);
+        try {
+        	this.page = ((ZimdroidApplication)this.getApplication()).getNotebook().findById(page_id);
+        }
+        catch (Exception ex) {
+        	Log.w("CY", "Notebook is null in ContentPad activity.");
+        	Toast.makeText(this, "Notebook not definied", Toast.LENGTH_LONG).show();
+        	this.finish();
+        }
         
         // Restore state from bundle
         if (savedInstanceState == null) {
@@ -82,6 +90,7 @@ public class ContentPad extends Activity {
     @Override
     public void onDestroy() {
         Log.d("LIFECYCLE", "Activity ContentPad onDestroy");
+        ((ZimdroidApplication)this.getApplication()).releaseNotebook();
     	super.onDestroy();
     }
 
