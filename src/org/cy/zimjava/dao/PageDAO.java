@@ -121,6 +121,14 @@ public class PageDAO {
 		return list;
 	}
 	
+	public Page findByPath(Path path) {
+		Page cur = this.findRoot();
+		for (String name: path.getPath()) {
+			cur = cur.getChild(name);
+		}
+		return cur;
+	}
+	
 	public boolean saveAll() {
 		LinkedList<Page> tmp = new LinkedList<Page>();
 		for (Page i: this.cache.values()) {

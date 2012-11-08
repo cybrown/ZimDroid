@@ -1,15 +1,20 @@
 package org.cy.zimdroid;
 
 import org.cy.zimjava.entity.Content;
+import org.cy.zimjava.entity.Notebook;
 import org.cy.zimjava.entity.Page;
+import org.cy.zimjava.util.Path;
 import org.cy.zimjava.util.ZimSyntax;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,6 +38,20 @@ public class ContentPad extends Activity {
 	private boolean bodyIsModified;
 	private String body;	// FROM this.getBody()
 	
+	private Notebook notebook;
+	private Notebook getNotebook() {
+		if (this.notebook == null) {
+			try {
+				this.notebook = ((ZimdroidApplication)this.getApplication()).getNotebook();
+			}
+			catch (Exception ex) {
+	        	Log.w("CY", "Notebook is null in ContentPad activity.");
+	        	Toast.makeText(this, "Notebook not definied", Toast.LENGTH_LONG).show();
+	        	this.finish();
+			}
+		}
+		return this.notebook;
+	}
 	
 	// Activities Life Cycle
 	
@@ -47,14 +66,8 @@ public class ContentPad extends Activity {
         	Log.e("CY", "Page Id from Intant for ContentPad activity must not be 0.");
         	finish();
         }
-        try {
-        	this.page = ((ZimdroidApplication)this.getApplication()).getNotebook().findById(page_id);
-        }
-        catch (Exception ex) {
-        	Log.w("CY", "Notebook is null in ContentPad activity.");
-        	Toast.makeText(this, "Notebook not definied", Toast.LENGTH_LONG).show();
-        	this.finish();
-        }
+    	this.page = this.getNotebook().findById(page_id);
+
         
         // Restore state from bundle
         if (savedInstanceState == null) {
@@ -138,6 +151,19 @@ public class ContentPad extends Activity {
         	this.body = this.getCurrentBody();
         	this.bodyIsModified = false;
         	WebView wv = new WebView(this);
+        	final ContentPad that = this;
+        	wv.setWebViewClient(new WebViewClient() {
+        		@Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        			Log.i("ContentPad", "Clicked on url: " + url);
+        			Path path = page.getPath().clone();
+        			path.fromZimPath(url);
+        			Log.d("CY", "Path clicked: " + path.toString());
+        			Intent intent = new Intent(that, ContentPad.class);
+        			intent.putExtra("pageId", that.getNotebook().findByPath(path).getId());
+        			startActivity(intent);
+        			return true;
+        		}
+        	});
             wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
             viewToAdd = wv;
         }

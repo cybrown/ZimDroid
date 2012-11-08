@@ -1,6 +1,7 @@
 package org.cy.zimjava.entity;
 
 import org.cy.zimjava.dao.PageDAO;
+import org.cy.zimjava.util.Path;
 
 public class Notebook {
 
@@ -38,6 +39,10 @@ public class Notebook {
 	
 	public Page findById(Long id) {
 		return this.pdao.findById(id);
+	}
+	
+	public Page findByPath(Path path) {
+		return this.pdao.findByPath(path);
 	}
 	
 	public void delete(Page p) {

@@ -171,7 +171,8 @@ public class Page implements IContentHost {
 			this.path = this.getParent() != null
 				? this.getParent().getPath().clone()
 				: new Path();
-			this.path.add(this.getBasename());
+			if (this.getBasename().length() != 0)
+				this.path.add(this.getBasename());
 			this.is_path_loaded = true;
 		}
 		return this.path;
@@ -205,5 +206,4 @@ public class Page implements IContentHost {
 		// Invalidate actual path
 		this.invalidatePath();
 	}
-
 }

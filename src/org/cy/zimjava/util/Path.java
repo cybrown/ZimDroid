@@ -6,12 +6,9 @@ public class Path implements Cloneable {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		boolean first = true;
 		for (String name: this.path) {
-			if (!first)
-				sb.append("/");
+			sb.append("/");
 			sb.append(name);
-			first = false;
 		}
 		return sb.toString();
 	}
@@ -19,12 +16,9 @@ public class Path implements Cloneable {
 	public String toFilePath(String root) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(root);
-		boolean first = true;
 		for (String name: this.path) {
-			if (!first)
-				sb.append("/");
+			sb.append("/");
 			sb.append(name);
-			first = false;
 		}
 		sb.append(".txt");
 		return sb.toString().replace(" ", "_");
@@ -33,12 +27,9 @@ public class Path implements Cloneable {
 	public String toDirPath(String root) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(root);
-		boolean first = true;
 		for (String name: this.path) {
-			if (!first)
-				sb.append("/");
+			sb.append("/");
 			sb.append(name);
-			first = false;
 		}
 		return sb.toString().replace(" ", "_");
 	}
@@ -78,5 +69,31 @@ public class Path implements Cloneable {
 	
 	public LinkedList<String> getPath() {
 		return this.path;
+	}
+
+	/**
+	 * Set path to a string containing a zim path.
+	 * If zimpath is absolute, the path is cleared before.
+	 * @param zimpath
+	 * @return
+	 */
+	public Path fromZimPath(String zimpath) {
+		if (zimpath.startsWith(":")) {
+			this.path.clear();
+			zimpath = zimpath.substring(1);
+		}
+		else if (zimpath.startsWith("+")) {
+			zimpath = zimpath.substring(1);
+		}
+		else if (zimpath.startsWith(".:")) {
+			zimpath = zimpath.substring(2);
+		}
+		
+		for (String name: zimpath.split(":")) {
+			if ((name == null) || (name.length() == 0))
+				continue;
+			this.add(name);
+		}
+		return this;
 	}
 }
