@@ -123,6 +123,7 @@ public class PageBrowser extends Activity implements OnItemClickListener {
 			return;
 		if (this.currentPage.getParent() == null) {
 			this.finish();
+			return;
 		}
 		this.setCurrentPage(this.currentPage.getParent());
 	}
