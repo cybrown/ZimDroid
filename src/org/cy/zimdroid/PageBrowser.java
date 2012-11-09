@@ -131,16 +131,24 @@ public class PageBrowser extends Activity implements OnItemClickListener {
 	// Events
 	
 	public void btn_open_click(View v) {
-		Intent intent = new Intent(this, ContentPad.class);
-		intent.putExtra("pageId", this.currentPage.getId());
-		startActivity(intent);
+		this.viewContent(this.currentPage);
 	}
 
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		this.setCurrentPage(this.currentPage.getChild(this.basenames.get(arg2)));
+		Page page = this.currentPage.getChild(this.basenames.get(arg2));
+		this.setCurrentPage(page);
+		if (!page.hasChildren()) {
+			this.viewContent(this.currentPage);
+		}
 	}
 	
 	// Private methods
+	
+	protected void viewContent(Page page) {
+		Intent intent = new Intent(this, ContentPad.class);
+		intent.putExtra("pageId", page.getId());
+		startActivity(intent);
+	}
 	
 	protected void setCurrentPage(Page p) {
 		if (p == null) {
