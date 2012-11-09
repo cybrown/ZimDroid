@@ -1,6 +1,7 @@
 package org.cy.zimdroid;
 
 
+import java.util.Date;
 import java.util.LinkedList;
 
 import org.cy.zimjava.entity.Content;
@@ -13,7 +14,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 /**
@@ -60,6 +61,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	private ListView lstNotes;
 	private ArrayAdapter<String> adapter;
 	private WebView wv;
+	private long lastBackPressed;
 	
 	//???
 	private String notebook_uri;
@@ -151,9 +153,15 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	@Override
 	public void onBackPressed() {
-		// TODO Press twice to quit app
-		if (!this.goParent()) {
+		// Press twice to quit app
+		long now = (new Date()).getTime();
+		if ((now - this.lastBackPressed) < 1000) {
 			this.finish();
+			return;
+		}
+		else {
+			this.lastBackPressed = now;
+			Toast.makeText(this, "Press return on more time to quit.", Toast.LENGTH_SHORT).show();
 		}
 	}
 	
