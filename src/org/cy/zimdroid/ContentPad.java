@@ -68,22 +68,8 @@ public class ContentPad extends Activity {
         	finish();
         }
     	this.page = this.getNotebook().findById(page_id);
-
-        
-        // Restore state from bundle
-        if (savedInstanceState == null) {
-            this.showSource = false;
-            this.body = this.page.hasContent() ? this.page.getContent().getBody() : "";
-            this.showBody();
-        }
-        else {
-            this.showSource = savedInstanceState.getBoolean("showSource");
-            this.body = savedInstanceState.getString("body");
-            this.showBody();
-            this.bodyIsModified = savedInstanceState.getBoolean("bodyIsModified");
-            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.showSource);
-        }
-        
+    	
+    	// Initializing WebView
         tvContentPadPath.setText(this.page.getPath().toString());
     	this.wv = new WebView(this);
     	final ContentPad that = this;
@@ -100,6 +86,20 @@ public class ContentPad extends Activity {
     			return true;
     		}
     	});
+        
+        // Restore state from bundle
+        if (savedInstanceState == null) {
+            this.showSource = false;
+            this.body = this.page.hasContent() ? this.page.getContent().getBody() : "";
+            this.showBody();
+        }
+        else {
+            this.showSource = savedInstanceState.getBoolean("showSource");
+            this.body = savedInstanceState.getString("body");
+            this.showBody();
+            this.bodyIsModified = savedInstanceState.getBoolean("bodyIsModified");
+            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.showSource);
+        }
     }
     
     @Override

@@ -23,6 +23,7 @@ public class ZimSyntax {
         r.add(new Replacement("__((.|\r|\n)*?)__", "<u>$1</u>"));
         r.add(new Replacement("\\*\\*((.|\r|\n)*?)\\*\\*", "<b>$1</b>"));
         r.add(new Replacement("//((.|\r|\n)*?)//", "<i>$1</i>"));
+        r.add(new Replacement("(^|\n)\\* (.*)", "$1<li>$2</li>"));
         r.add(new Replacement("(^|\n)======(.*?)(======)?((\r?\n)|$)", "$1<h1>$2</h1>"));
         r.add(new Replacement("(^|\n)=====(.*?)(=====)?((\r?\n)|$)", "$1<h2>$2</h2>"));
         r.add(new Replacement("(^|\n)====(.*?)(====)?((\r?\n)|$)", "$1<h3>$2</h3>"));
