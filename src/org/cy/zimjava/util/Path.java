@@ -88,6 +88,9 @@ public class Path implements Cloneable {
 		else if (zimpath.startsWith(".:")) {
 			zimpath = zimpath.substring(2);
 		}
+		else {
+			this.path.removeLast();
+		}
 		
 		for (String name: zimpath.split(":")) {
 			if ((name == null) || (name.length() == 0))

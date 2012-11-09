@@ -7,7 +7,6 @@ import org.cy.zimjava.util.Path;
 import org.cy.zimjava.util.ZimSyntax;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,6 +36,8 @@ public class ContentPad extends Activity {
 	private boolean showSource;
 	private boolean bodyIsModified;
 	private String body;	// FROM this.getBody()
+	
+	WebView wv;
 	
 	private Notebook notebook;
 	private Notebook getNotebook() {
@@ -84,6 +85,21 @@ public class ContentPad extends Activity {
         }
         
         tvContentPadPath.setText(this.page.getPath().toString());
+    	this.wv = new WebView(this);
+    	final ContentPad that = this;
+    	this.wv.setWebViewClient(new WebViewClient() {
+    		@Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
+    			Path path = page.getPath().clone().fromZimPath(url);
+    			Log.d("CY", "Go to page: " + path.toString());
+    			Page pageToGo = that.getNotebook().createByPath(path);
+    			if (pageToGo != null) {
+        			Intent intent = new Intent(that, ContentPad.class);
+        			intent.putExtra("pageId", pageToGo.getId());
+        			startActivity(intent);
+    			}
+    			return true;
+    		}
+    	});
     }
     
     @Override
@@ -150,22 +166,8 @@ public class ContentPad extends Activity {
         else {
         	this.body = this.getCurrentBody();
         	this.bodyIsModified = false;
-        	WebView wv = new WebView(this);
-        	final ContentPad that = this;
-        	wv.setWebViewClient(new WebViewClient() {
-        		@Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        			Log.i("ContentPad", "Clicked on url: " + url);
-        			Path path = page.getPath().clone();
-        			path.fromZimPath(url);
-        			Log.d("CY", "Path clicked: " + path.toString());
-        			Intent intent = new Intent(that, ContentPad.class);
-        			intent.putExtra("pageId", that.getNotebook().findByPath(path).getId());
-        			startActivity(intent);
-        			return true;
-        		}
-        	});
-            wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
-            viewToAdd = wv;
+            this.wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
+            viewToAdd = this.wv;
         }
 
     	lytViewer.removeAllViews();
@@ -173,11 +175,13 @@ public class ContentPad extends Activity {
     }
     
     protected void saveBodyToPage() {
+    	// If page doesn't has a content and body is not empty, create a new content
     	if (!this.page.hasContent() && (!this.body.equals(""))) {
     		this.page.setContent(new Content(this.page));
     	}
-    	else if (this.page.hasContent()) {
-    		this.page.getContent().setBody(this.body);
+    	// If page has a content, set it's body
+    	if (this.page.hasContent()) {
+    		this.page.setBody(this.getCurrentBody());
     	}
     }
 }

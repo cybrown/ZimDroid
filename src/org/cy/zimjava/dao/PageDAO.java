@@ -80,8 +80,9 @@ public class PageDAO {
 				Pagerecord2Page(pr, res);
 				res.setModified(false);
 			}
-			System.out.println("Loading " + res.getPath().toString());
+			System.out.println("Loading (" + id + ") " + res.getPath().toString());
 		}
+		// TODO CONTINUE
 		this.cache.put(id, res);
 		return res;
 	}
@@ -129,6 +130,37 @@ public class PageDAO {
 		return cur;
 	}
 	
+	public Page createByPath(Path path) {
+		List<String> lst = path.getPath();
+		Page cur = this.findRoot();
+		Page prec = this.findRoot();
+		String name = "";
+		
+		// While page exists
+		while (!lst.isEmpty()) {
+			name = lst.get(0);
+			cur = cur.getChild(name);
+			if (cur == null) {
+				break;
+			}
+			lst.remove(0);
+			prec = cur;
+		}
+		
+		// While list is not empty, create page
+		while (!lst.isEmpty()) {
+			name = lst.get(0);
+			cur = new Page(this);
+			cur.setBasename(name);
+			cur.setParent(prec);
+			this.save(cur);
+			lst.remove(0);
+			prec = cur;
+		}
+		
+		return cur;
+	}
+	
 	public boolean saveAll() {
 		LinkedList<Page> tmp = new LinkedList<Page>();
 		for (Page i: this.cache.values()) {
@@ -149,6 +181,9 @@ public class PageDAO {
 			: this.prd.findById(page.getId());
 		Page2Pagerecord(pr, page);
 		if (this.prd.save(pr)) {
+			// The page is new, the id was just generated in pagerecord
+			if (page.getId() == 0)
+				page.setId(pr.getId());
 			if (page.isChildrenLoaded() && !page.hasChildren())
 				this.deleteFolder(page);
 			this.saveContent(page);

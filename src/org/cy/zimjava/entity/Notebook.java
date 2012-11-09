@@ -45,6 +45,10 @@ public class Notebook {
 		return this.pdao.findByPath(path);
 	}
 	
+	public Page createByPath(Path path) {
+		return this.pdao.createByPath(path);
+	}
+	
 	public void delete(Page p) {
 		this.pdao.delete(p);
 	}

@@ -13,10 +13,16 @@ public class Content {
 	public Content(IContentHost host) {
 		this.headers = new HashMap<String, String>();
 		this.body = "";
+		this.addHeader("Content-Type", "text/x-zim-wiki");
+		this.addHeader("Wiki-Format", "zim 0.4");
 	}
 	
 	public void addHeader(String key, String value) {
 		this.headers.put(key, value);
+	}
+
+	public void clearHeaders() {
+		this.headers.clear();
 	}
 	
 	public String getHeader(String key) {

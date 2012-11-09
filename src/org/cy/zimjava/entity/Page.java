@@ -6,6 +6,8 @@ import org.cy.zimjava.dao.PageDAO;
 import org.cy.zimjava.util.IContentHost;
 import org.cy.zimjava.util.Path;
 
+import android.util.Log;
+
 public class Page implements IContentHost {
 	
 	public String toString() {
@@ -24,7 +26,6 @@ public class Page implements IContentHost {
 		this.is_content_loaded = false;
 		this.is_parent_loaded = false;
 		this.is_path_loaded = false;
-		this.content = new Content(this);
 	}
 	
 	private long id;
@@ -77,8 +78,10 @@ public class Page implements IContentHost {
 	}
 
 	public void setBasename(String basename) {
-		if (this.basename == null)
+		if (this.basename == null) {
+			this.setModified(true);
 			this.basename = basename;
+		}
 		else if (!this.basename.equals(basename)) {
 			this.setModified(true);
 			Path new_path = this.getPath().clone();
@@ -99,12 +102,31 @@ public class Page implements IContentHost {
 	}
 
 	public void setParent(Page parent) {
+		this.setParent(parent, true);
+	}
+	
+	public void setParent(Page parent, boolean doEvents) {
 		this.setModified(true);
 		this.is_parent_loaded = true;
-		this.onBeforeChangeParent(parent);
+		// Invalidate old parent's children
+		if (this.getParent() != null) {
+			this.getParent().invalidateChildren();
+		}
+		if (doEvents) {
+			this.getContent();
+			// Move content file
+			this.pdao.moveFiles(this, parent.getPath().clone().add(this.getBasename()));
+		}
 		this.parent = parent;
 		this.parentId = parent == null ? 0 : parent.getId();
-		this.onAfterChangeParent(parent);
+		// Invalidate new parent's children
+		if (this.getParent() != null) {
+			this.getParent().invalidateChildren();
+		}
+		if (doEvents) {
+			// Invalidate actual path
+			this.invalidatePath();
+		}
 		if (this.getParent() != null)
 			this.getParent().invalidateChildren();
 	}
@@ -124,7 +146,22 @@ public class Page implements IContentHost {
 	public void setContent(Content content) {
 		this.setModified(true);
 		this.is_content_loaded = true;
+		
+			try {
+				throw new Exception();
+			}
+			catch (Exception ex) {
+	
+				if (this.content != null) {
+					Log.e("CY", "Content was not null.", ex);
+				}
+//				else {
+//					Log.e("CY", "Content was null.", ex);
+//				}
+			}
+		
 		this.content = content;
+		
 	}
 	
 	public void setBody(String text) {
@@ -153,8 +190,10 @@ public class Page implements IContentHost {
 	public void invalidatePath() {
 		this.path = null;
 		this.is_path_loaded = false;
-		for (Page p: this.getChildren()) {
-			p.invalidatePath();
+		if (this.hasChildren()) {
+			for (Page p: this.getChildren()) {
+				p.invalidatePath();
+			}
 		}
 	}
 	
@@ -176,34 +215,5 @@ public class Page implements IContentHost {
 			this.is_path_loaded = true;
 		}
 		return this.path;
-	}
-
-	/**
-	 * Delete any information with old path.
-	 * (Content files, folder)
-	 */
-	private void onBeforeChangeParent(Page newParent) {
-		// TODO If page has content, move content file
-		// TODO If page has children, notify children
-		
-		// Invalidate parents children
-		if (this.getParent() != null) {
-			this.getParent().invalidateChildren();
-		}
-		
-		this.getContent();
-		
-		// Move content file
-		this.pdao.moveFiles(this, newParent.getPath().clone().add(this.getBasename()));
-	}
-	
-	private void onAfterChangeParent(Page newParent) {
-		// Invalidate parent's children
-		if (this.getParent() != null) {
-			this.getParent().invalidateChildren();
-		}
-		
-		// Invalidate actual path
-		this.invalidatePath();
 	}
 }
