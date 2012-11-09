@@ -23,10 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ContentPad"
-            android:label="@string/title_activity_content_pad" >
-        </activity>
     </application>
 
 </manifest>

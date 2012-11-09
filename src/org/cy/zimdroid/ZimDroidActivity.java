@@ -32,7 +32,7 @@ import android.widget.ToggleButton;
  * @author sigh
  *
  */
-public class PageBrowser extends Activity implements OnItemClickListener {
+public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	// Application global
 	private Notebook notebook;
@@ -76,7 +76,7 @@ public class PageBrowser extends Activity implements OnItemClickListener {
         
     	// Initializing WebView
     	this.wv = new WebView(this);
-    	final PageBrowser that = this;
+    	final ZimDroidActivity that = this;
     	this.wv.setWebViewClient(new WebViewClient() {
     		@Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
     			Path path = currentViewerPage.getPath().clone().fromZimPath(url);
@@ -148,12 +148,6 @@ public class PageBrowser extends Activity implements OnItemClickListener {
     }
 
     // Hard buttons
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_page_browser, menu);
-        return true;
-    }
 	
 	@Override
 	public void onBackPressed() {
