@@ -25,6 +25,7 @@ public class Notebook {
 	
 	public void close() {
 		this.pdao.saveAll();
+		this.pdao.close();
 		this.pdao = null;
 		this.open = false;
 	}

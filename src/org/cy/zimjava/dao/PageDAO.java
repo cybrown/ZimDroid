@@ -257,4 +257,7 @@ public class PageDAO {
 		return false;
 	}
 	
+	public void close() {
+		this.prd.close();
+	}
 }

@@ -13,4 +13,5 @@ public interface IRecordDAO<T> {
 	public boolean delete(T pr);
 	public boolean save(T pr);
 	public T findById(long id);
+	public void close();
 }

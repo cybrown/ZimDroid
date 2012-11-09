@@ -15,6 +15,7 @@ public class ZimdroidApplication extends Application {
 		this.notebook = new Notebook(this.notebook_uri);
 		this.isNotebookNeeded++;
 		Log.d("CY", "Creating Notebook, remaining uses: " + Integer.toString(this.isNotebookNeeded));
+		this.notebook.open();
 		return this.notebook;
 	}
 	
