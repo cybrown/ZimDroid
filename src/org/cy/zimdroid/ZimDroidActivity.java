@@ -55,6 +55,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	private boolean bodyIsModified;
 	private String body;	// FROM this.getBody()
 	private Page currentViewerPage;
+	private boolean navShown;
 	
 	// Generated
 	private LinkedList<String> basenames;
@@ -106,13 +107,16 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	            this.bodyIsModified = savedInstanceState.getBoolean("bodyIsModified");
 	            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.showSource);
 	            long page_id = savedInstanceState.getLong("currentViewerPageId", 0);
-	        	this.currentViewerPage = this.getNotebook().findById(page_id);
+	            if (page_id != -1)
+	            	this.currentViewerPage = this.getNotebook().findById(page_id);
+	        	this.navShown = savedInstanceState.getBoolean("navShown");
         }
         else {
         	// Remove this part ???
         	// TODO Create activity to choose notebook
         	String sdcard_path = Environment.getExternalStorageDirectory().getAbsolutePath();
         	this.notebook_uri = sdcard_path + "/zim";
+        	this.navShown = true;
         }
 		
 		// Open last open page
@@ -129,6 +133,9 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		
 		this.setCurrentBrowserPage(current_id == 0 ? this.getNotebook().findRoot() : this.getNotebook().findById(current_id));
 		this.showBody();
+		
+		// Restore state of nav panel
+		((View)findViewById(R.id.lytNav)).setVisibility(this.navShown ? View.VISIBLE : View.GONE);
     }
     
     @Override
@@ -136,10 +143,11 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         Log.d("LIFECYCLE", "Activity MainActivity onSaveInstanceState");
         savedInstanceState.putString("notebookUri", this.notebook_uri);
     	savedInstanceState.putLong("currentBrowserPageId", this.currentBrowserPage.getId());
-    	savedInstanceState.putLong("currentViewerPageId", this.currentViewerPage.getId());
+    	savedInstanceState.putLong("currentViewerPageId", this.currentViewerPage == null ? -1 : this.currentViewerPage.getId());
         savedInstanceState.putBoolean("showSource", this.showSource);
         savedInstanceState.putString("body", this.getCurrentBody());
         savedInstanceState.putBoolean("bodyIsModified", this.bodyIsModified);
+        savedInstanceState.putBoolean("navShown", this.navShown);
     }
     
     @Override
@@ -181,6 +189,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	public void btn_nav_click(View v) {
 		View lytNav = (View)findViewById(R.id.lytNav);
+		this.navShown = lytNav.getVisibility() == View.GONE;
 		lytNav.setVisibility(lytNav.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
 	}
     
