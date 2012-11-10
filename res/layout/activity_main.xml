@@ -11,6 +11,21 @@
         android:text="PATH/TO/PAGE"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <HorizontalScrollView
+        android:id="@+id/scrlHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/lytHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right" >
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

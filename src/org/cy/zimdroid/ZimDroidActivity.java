@@ -2,7 +2,9 @@ package org.cy.zimdroid;
 
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.cy.zimjava.entity.Content;
 import org.cy.zimjava.entity.Notebook;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -22,8 +25,11 @@ import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +42,59 @@ import android.widget.ToggleButton;
  *
  */
 public class ZimDroidActivity extends Activity implements OnItemClickListener {
+	
+	class HistoryManager implements OnClickListener {
+
+		Map<View, Page> map;
+		
+		public HistoryManager() {
+			this.map = new LinkedHashMap<View, Page>();
+		}
+		
+		public void addPage(View view, Page page) {
+			this.map.put(view, page);
+		}
+		
+		@Override
+		public void onClick(View view) {
+			Page page = this.map.get(view);
+			if (page != null) {
+				viewContent(page, true, false);
+			}
+		}
+		
+		protected long[] getIds() {
+			long[] ids = new long[this.map.size()];
+			int i = 0;
+			for (Page page: this.map.values()) {
+				ids[i] = page.getId();
+				i++;
+			}
+			return ids;
+		}
+		
+		protected void addToHistory(Page p) {
+			Button btn = new Button(getApplicationContext());
+			btn.setText(p.getBasename());
+			LinearLayout lytHistory = (LinearLayout)findViewById(R.id.lytHistory);
+			HorizontalScrollView hsv = (HorizontalScrollView)findViewById(R.id.scrlHistory);
+			lytHistory.addView(btn);
+			// Scroll to end
+			// TODO Bug this do not scroll to last button.
+			this.addPage(btn, p);
+			btn.setOnClickListener(this);
+			hsv.scrollBy(hsv.getWidth(), 0);
+		}
+		
+		protected void setIds(long[] ids) {
+			for (int i = 0; i < ids.length; i++) {
+				Page page = getNotebook().findById(ids[i]);
+				if (page != null) {
+					this.addToHistory(page);
+				}
+			}
+		}
+	}
 	
 	// Application global
 	private Notebook notebook;
@@ -58,6 +117,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	private String body;	// FROM this.getBody()
 	private Page currentViewerPage;
 	private boolean navShown;
+	private boolean fullscreen;
 	
 	// Generated
 	private LinkedList<String> basenames;
@@ -68,7 +128,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	//???
 	private String notebook_uri;
-	private boolean fullscreen;
+	private HistoryManager historyManager;
 	
 	// Activity Life Cycle
 	
@@ -78,6 +138,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         Log.d("LIFECYCLE", "Activity MainActivity onCreate");
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        historyManager = new HistoryManager();
         lstNotes = (ListView)(findViewById(R.id.lstNotes));
         lstNotes.setOnItemClickListener(this);
         
@@ -90,7 +151,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     			Log.d("CY", "Go to page: " + path.toString());
     			Page pageToGo = that.getNotebook().createByPath(path);
     			if (pageToGo != null) {
-    				that.viewContent(pageToGo, true);
+    				that.viewContent(pageToGo, true, true);
     			}
     			return true;
     		}
@@ -101,6 +162,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         basenames = new LinkedList<String>();
         
         // Initialize from bundle
+        long[] saved_history = new long[0];
         if (savedInstanceState != null) {
         	current_id = savedInstanceState.getLong("currentBrowserPageId");
         	this.notebook_uri = savedInstanceState.getString("notebookUri");
@@ -115,6 +177,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	            	this.currentViewerPage = this.getNotebook().findById(page_id);
 	        	this.navShown = savedInstanceState.getBoolean("navShown");
 	        	this.fullscreen = savedInstanceState.getBoolean("fullscreen");
+	        	saved_history = savedInstanceState.getLongArray("history");
         }
         else {
         	// Remove this part ???
@@ -139,6 +202,9 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		this.setCurrentBrowserPage(current_id == 0 ? this.getNotebook().findRoot() : this.getNotebook().findById(current_id));
 		this.showBody();
 		
+		// Restore history
+		this.historyManager.setIds(saved_history);
+		
 		// Restore state of nav panel
 		((View)findViewById(R.id.lytNav)).setVisibility(this.navShown ? View.VISIBLE : View.GONE);
 		
@@ -157,6 +223,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         savedInstanceState.putBoolean("bodyIsModified", this.bodyIsModified);
         savedInstanceState.putBoolean("navShown", this.navShown);
         savedInstanceState.putBoolean("fullscreen", this.fullscreen);
+        savedInstanceState.putLongArray("history", this.historyManager.getIds());
     }
     
     @Override
@@ -189,7 +256,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		if (page.hasChildren()) {
 			this.setCurrentBrowserPage(page);
 		}
-		this.viewContent(page, false);
+		this.viewContent(page, false, true);
 	}
 	
 	public void btn_parent_click(View v) {
@@ -224,13 +291,16 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		return true;
 	}
 	
-	protected void viewContent(Page page, boolean setInBrowser) {
+	protected void viewContent(Page page, boolean setInBrowser, boolean addToHistory) {
 		// Initialize visualizer state
         this.showSource = false;
         this.body = page.hasContent() ? page.getContent().getBody() : "";
         this.bodyIsModified = false;
         this.currentViewerPage = page;
         this.showBody();
+        if (addToHistory) {
+        	this.historyManager.addToHistory(page);
+        }
         if (setInBrowser) {
         	if (page.hasChildren()) {
         		this.setCurrentBrowserPage(page);
@@ -311,10 +381,14 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     	if (this.fullscreen) {
     		Log.d("CY", "Go full screen.");
     		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    		findViewById(R.id.tvPath).setVisibility(View.GONE);
+    		findViewById(R.id.scrlHistory).setVisibility(View.GONE);
     	}
     	else {
     		Log.d("CY", "Remove fullscreen.");
     		getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    		findViewById(R.id.tvPath).setVisibility(View.VISIBLE);
+    		findViewById(R.id.scrlHistory).setVisibility(View.VISIBLE);
     	}
     	((ToggleButton)findViewById(R.id.btnFullscreen)).setChecked(this.fullscreen);
     }
