@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -66,6 +68,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	//???
 	private String notebook_uri;
+	private boolean fullscreen;
 	
 	// Activity Life Cycle
 	
@@ -73,6 +76,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("LIFECYCLE", "Activity MainActivity onCreate");
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         lstNotes = (ListView)(findViewById(R.id.lstNotes));
         lstNotes.setOnItemClickListener(this);
@@ -110,6 +114,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	            if (page_id != -1)
 	            	this.currentViewerPage = this.getNotebook().findById(page_id);
 	        	this.navShown = savedInstanceState.getBoolean("navShown");
+	        	this.fullscreen = savedInstanceState.getBoolean("fullscreen");
         }
         else {
         	// Remove this part ???
@@ -136,6 +141,9 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		
 		// Restore state of nav panel
 		((View)findViewById(R.id.lytNav)).setVisibility(this.navShown ? View.VISIBLE : View.GONE);
+		
+		// Restore fullscreenness
+		this.applyFullscreenness();
     }
     
     @Override
@@ -148,6 +156,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         savedInstanceState.putString("body", this.getCurrentBody());
         savedInstanceState.putBoolean("bodyIsModified", this.bodyIsModified);
         savedInstanceState.putBoolean("navShown", this.navShown);
+        savedInstanceState.putBoolean("fullscreen", this.fullscreen);
     }
     
     @Override
@@ -198,6 +207,11 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     	this.showBody();
     }
 
+	public void btn_fullscreen_click(View v) {
+		this.fullscreen = ((ToggleButton)v).isChecked();
+		this.applyFullscreenness();
+	}
+	
 	// Private methods
 	
 	protected boolean goParent() {
@@ -283,5 +297,17 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     	if (this.currentViewerPage.hasContent()) {
     		this.currentViewerPage.setBody(this.getCurrentBody());
     	}
+    }
+
+    protected void applyFullscreenness() {
+    	if (this.fullscreen) {
+    		Log.d("CY", "Go full screen.");
+    		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    	}
+    	else {
+    		Log.d("CY", "Remove fullscreen.");
+    		getWindow().setFlags(0, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    	}
+    	((ToggleButton)findViewById(R.id.btnFullscreen)).setChecked(this.fullscreen);
     }
 }
