@@ -19,6 +19,12 @@ public class ContentDAO {
 		this.root = root;
 	}
 	
+	/**
+	 * Creates a new Content object and load data from filesystem.
+	 * @param path Path to content.
+	 * @param host The object containing the content.
+	 * @return Returns null on error.
+	 */
 	public Content load(Path path, IContentHost host) {
 		Content res = null;
 		String fpath = path.toFilePath(this.root);
@@ -37,8 +43,7 @@ public class ContentDAO {
 		} catch (FileNotFoundException e) {
 			// Do nothing if file not found, simply return null
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Do nothing on error, simply return null.
 		}
 		
 		return res;

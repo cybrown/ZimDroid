@@ -11,8 +11,7 @@ import org.cy.zimjava.record.PageRecord;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
-// TODO Check if db and root are not null
+import android.util.Log;
 
 public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 
@@ -21,17 +20,21 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	
 	HashMap<Long, PageRecord> cache;
 	
-	public AndroidSQLitePageRecordDAO() {
+	public AndroidSQLitePageRecordDAO(String root) {
 		this.cache = new HashMap<Long, PageRecord>();
+		this.setRoot(root);
 	}
 	
-	public void setRoot(String root) {
+	protected void setRoot(String root) {
 		this.root = root;
 		ZimdroidSQLiteHelper zsh = new ZimdroidSQLiteHelper(this.root + "/.zim/index.db");
 		this.db = zsh.getWritableDatabase();
 	}
 	
 	public boolean delete(long id) {
+		if ((this.db == null) || (!this.db.isOpen())) {
+			Log.e("CY", "DB is null or is not open.");
+		}
 		this.db.delete("pages", "id = ", new String[]{Long.toString(id)});
 		return true;
 	}
@@ -45,6 +48,9 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	}
 	
 	public boolean save(PageRecord pr) {
+		if ((this.db == null) || (!this.db.isOpen())) {
+			Log.e("CY", "DB is null or is not open.");
+		}
 		// Save to database
 		ContentValues cv = new ContentValues();
 		cv.put("basename", pr.getBasename());
@@ -74,6 +80,9 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	}
 	
 	public PageRecord findById(long id) {
+		if ((this.db == null) || (!this.db.isOpen())) {
+			Log.e("CY", "DB is null or is not open.");
+		}
 		if (id == 0)
 			return null;
 		PageRecord pr;
@@ -106,6 +115,9 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	}
 		
 	protected Collection<PageRecord> backendFindByParentId(long parent, String order) {
+		if ((this.db == null) || (!this.db.isOpen())) {
+			Log.e("CY", "DB is null or is not open.");
+		}
 		LinkedList<PageRecord> prl = new LinkedList<PageRecord>();
 		// If id is 0, do not verify parents properties
 		if (parent != 0) {
@@ -150,6 +162,8 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	}
 
 	public void close() {
-		this.db.close();
+		if ((this.db != null) && (this.db.isOpen())) {
+			this.db.close();
+		}
 	}
 }

@@ -26,8 +26,7 @@ public class PageDAO {
 	
 	public PageDAO(String root) {
 		this.root = root;
-		this.prd = new AndroidSQLitePageRecordDAO();
-		this.prd.setRoot(this.root);
+		this.prd = new AndroidSQLitePageRecordDAO(this.root);
 		this.cdao = new ContentDAO(this.root);
 		this.cache = new HashMap<Long, Page>();
 	}
@@ -82,7 +81,6 @@ public class PageDAO {
 			}
 			System.out.println("Loading (" + id + ") " + res.getPath().toString());
 		}
-		// TODO CONTINUE
 		this.cache.put(id, res);
 		return res;
 	}

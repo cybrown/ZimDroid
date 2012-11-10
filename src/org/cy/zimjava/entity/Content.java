@@ -7,6 +7,8 @@ import org.cy.zimjava.util.IContentHost;
 
 public class Content {
 
+	public static final String EOL = "\n";	// TODO Organize this value (EOL)
+	
 	private Map<String, String> headers;
 	private String body;
 	
@@ -15,6 +17,10 @@ public class Content {
 		this.body = "";
 		this.addHeader("Content-Type", "text/x-zim-wiki");
 		this.addHeader("Wiki-Format", "zim 0.4");
+	}
+	
+	public String getEOL() {
+		return EOL;
 	}
 	
 	public void addHeader(String key, String value) {
@@ -54,7 +60,7 @@ public class Content {
 		boolean mode_header = true;
 		int pos;
 		this.headers.clear();
-		for (String line: text.split("\n")) {	// TODO End Of Line
+		for (String line: text.split(this.getEOL())) {
 			if (mode_header) {
 					pos = line.indexOf(":");
 				if (pos != -1) {
@@ -66,12 +72,12 @@ public class Content {
 				else {
 					mode_header = false;
 					sb.append(line);
-					sb.append("\n");	// TODO End Of Line
+					sb.append(this.getEOL());
 				}
 			}
 			else {
 				sb.append(line);
-				sb.append("\n");	// TODO End Of Line
+				sb.append(this.getEOL());
 			}
 		}
 		this.body = sb.toString();
@@ -83,11 +89,11 @@ public class Content {
 		
 		boolean at_least_once = false;
 		for (String key: this.headers.keySet()){
-			sb.append(key).append(": ").append(this.headers.get(key)).append("\n"); // TODO End Of Line
+			sb.append(key).append(": ").append(this.headers.get(key)).append(this.getEOL());
 			at_least_once = true;
 		}
 		if (at_least_once)
-			sb.append("\n");	// TODO End Of Line
+			sb.append(this.getEOL());
 		sb.append(this.body);
 		
 		return sb.toString();
