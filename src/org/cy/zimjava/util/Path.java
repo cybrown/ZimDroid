@@ -49,7 +49,7 @@ public class Path implements Cloneable {
 	}
 	
 	public Path add(String s) {
-		this.path.add(s);
+		this.path.add(s.replace("_", " "));
 		return this;
 	}
 	
