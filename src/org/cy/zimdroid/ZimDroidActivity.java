@@ -90,7 +90,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     			Log.d("CY", "Go to page: " + path.toString());
     			Page pageToGo = that.getNotebook().createByPath(path);
     			if (pageToGo != null) {
-    				that.viewContent(pageToGo);
+    				that.viewContent(pageToGo, true);
     			}
     			return true;
     		}
@@ -189,7 +189,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		if (page.hasChildren()) {
 			this.setCurrentBrowserPage(page);
 		}
-		this.viewContent(page);
+		this.viewContent(page, false);
 	}
 	
 	public void btn_parent_click(View v) {
@@ -224,13 +224,21 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		return true;
 	}
 	
-	protected void viewContent(Page page) {
+	protected void viewContent(Page page, boolean setInBrowser) {
 		// Initialize visualizer state
         this.showSource = false;
         this.body = page.hasContent() ? page.getContent().getBody() : "";
         this.bodyIsModified = false;
         this.currentViewerPage = page;
         this.showBody();
+        if (setInBrowser) {
+        	if (page.hasChildren()) {
+        		this.setCurrentBrowserPage(page);
+        	}
+        	else {
+        		this.setCurrentBrowserPage(page.getParent());
+        	}
+        }
 	}
 	
 	protected void setCurrentBrowserPage(Page p) {
