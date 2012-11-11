@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.cy.zimjava.entity.Notebook;
 import org.cy.zimjava.entity.Page;
@@ -78,10 +80,11 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	//???
 	private String notebook_uri;	// Get from intent
+	Timer autoSave;
+	TimerTask autoSaveTask;
 	
 	// Activity Life Cycle
-	
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("LIFECYCLE", "Activity MainActivity onCreate");
@@ -176,6 +179,30 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         savedInstanceState.putBoolean("navShown", this.lytNav.getVisibility() == View.VISIBLE);
         savedInstanceState.putBoolean("fullscreen", this.fullscreen);
         savedInstanceState.putLongArray("history", this.historyManager.getState());
+    }
+    
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	Log.d("CY", "Remove autosave timer.");
+    	this.autoSaveTask.cancel();
+    	this.autoSave.cancel();
+    }
+    
+    public void onResume() {
+    	super.onResume();
+    	Log.d("CY", "Set up autosave timer.");
+    	this.autoSave = new Timer();
+    	final ZimDroidActivity that = this;
+        this.autoSaveTask = new TimerTask() {
+			@Override
+			public void run() {
+				if (that.getNotebook().saveAll()) {
+					Log.d("CY", "Autosave...");
+				}
+			}
+        };
+    	this.autoSave.schedule(this.autoSaveTask, 1000, 1000);
     }
     
     @Override

@@ -63,4 +63,8 @@ public class Notebook {
 	public Page createPage() {
 		return this.createPageFor(this.findRoot());
 	}
+	
+	public boolean saveAll() {
+		return this.pdao.saveAll();
+	}
 }

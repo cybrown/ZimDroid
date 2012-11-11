@@ -161,13 +161,14 @@ public class PageDAO {
 	
 	public boolean saveAll() {
 		LinkedList<Page> tmp = new LinkedList<Page>();
+		boolean somethingWasSaved = false;
 		for (Page i: this.cache.values()) {
 			tmp.add(i);
 		}
 		for (Page i: tmp) {
-			this.save(i);
+			somethingWasSaved = somethingWasSaved | this.save(i);
 		}
-		return true;	// TODO Verify output...
+		return somethingWasSaved;	// TODO Verify output...
 	}
 	
 	public boolean save(Page page) {
@@ -188,7 +189,7 @@ public class PageDAO {
 			return true;
 		}
 		page.setModified(false);
-		return false;
+		return true;
 	}
 	
 	public Content loadContent(Path path) {
