@@ -64,7 +64,7 @@ public class Notebook {
 		return this.createPageFor(this.findRoot());
 	}
 	
-	public boolean saveAll() {
+	public synchronized boolean saveAll() {
 		return this.pdao.saveAll();
 	}
 }
