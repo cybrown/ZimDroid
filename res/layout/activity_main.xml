@@ -79,7 +79,9 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:onClick="btn_fullscreen_click"
-                        android:text="ToggleButton" />
+                        android:text="ToggleButton"
+                        android:textOff="Fullscreen"
+                        android:textOn="Fullscreen" />
 
                 </LinearLayout>
 

@@ -87,6 +87,8 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		}
 		
 		protected void setIds(long[] ids) {
+			if (ids == null)
+				return;
 			for (int i = 0; i < ids.length; i++) {
 				Page page = getNotebook().findById(ids[i]);
 				if (page != null) {
@@ -118,6 +120,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	private Page currentViewerPage;
 	private boolean navShown;
 	private boolean fullscreen;
+	private HistoryManager historyManager;
 	
 	// Generated
 	private LinkedList<String> basenames;
@@ -128,7 +131,6 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	
 	//???
 	private String notebook_uri;
-	private HistoryManager historyManager;
 	
 	// Activity Life Cycle
 	
@@ -161,30 +163,31 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         long current_id = 0;
         basenames = new LinkedList<String>();
         
+        // Initialize default state
+    	this.navShown = true;
+    	
         // Initialize from bundle
         long[] saved_history = new long[0];
         if (savedInstanceState != null) {
         	current_id = savedInstanceState.getLong("currentBrowserPageId");
         	this.notebook_uri = savedInstanceState.getString("notebookUri");
-
-	            this.showSource = savedInstanceState.getBoolean("showSource");
-	            this.body = savedInstanceState.getString("body");
-	            this.showBody();
-	            this.bodyIsModified = savedInstanceState.getBoolean("bodyIsModified");
-	            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.showSource);
-	            long page_id = savedInstanceState.getLong("currentViewerPageId", 0);
-	            if (page_id != -1)
-	            	this.currentViewerPage = this.getNotebook().findById(page_id);
-	        	this.navShown = savedInstanceState.getBoolean("navShown");
-	        	this.fullscreen = savedInstanceState.getBoolean("fullscreen");
-	        	saved_history = savedInstanceState.getLongArray("history");
+            this.showSource = savedInstanceState.getBoolean("showSource");
+            this.body = savedInstanceState.getString("body");
+            this.showBody();
+            this.bodyIsModified = savedInstanceState.getBoolean("bodyIsModified");
+            ((ToggleButton)findViewById(R.id.btnSource)).setChecked(this.showSource);
+            long page_id = savedInstanceState.getLong("currentViewerPageId", 0);
+            if (page_id != -1)
+            	this.currentViewerPage = this.getNotebook().findById(page_id);
+        	this.navShown = savedInstanceState.getBoolean("navShown");
+        	this.fullscreen = savedInstanceState.getBoolean("fullscreen");
+        	saved_history = savedInstanceState.getLongArray("history");
         }
         else {
         	// Remove this part ???
         	// TODO Create activity to choose notebook
         	String sdcard_path = Environment.getExternalStorageDirectory().getAbsolutePath();
         	this.notebook_uri = sdcard_path + "/zim";
-        	this.navShown = true;
         }
 		
 		// Open last open page
@@ -358,7 +361,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         	}
         	this.body = this.getCurrentBody();
         	this.bodyIsModified = false;
-            this.wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
+        	this.wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
             viewToAdd = this.wv;
         }
 
