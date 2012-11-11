@@ -152,7 +152,9 @@ public class Page {
 	
 	public void setBody(String text) {
 		this.setModified(true);
-		this.is_content_loaded = true;
+		if (!this.hasContent()) {
+			this.setContent(new Content());
+		}
 		this.content.setBody(text);
 	}
 
