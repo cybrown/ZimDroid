@@ -24,7 +24,7 @@ public class Notebook {
 	}
 	
 	public void close() {
-		this.pdao.saveAll();
+		this.saveAll();
 		this.pdao.close();
 		this.pdao = null;
 		this.open = false;
@@ -52,16 +52,6 @@ public class Notebook {
 	
 	public void delete(Page p) {
 		this.pdao.delete(p);
-	}
-	
-	public Page createPageFor(Page parent) {
-		Page p = new Page(this.pdao);
-		p.setParent(parent);
-		return p;
-	}
-	
-	public Page createPage() {
-		return this.createPageFor(this.findRoot());
 	}
 	
 	public synchronized boolean saveAll() {

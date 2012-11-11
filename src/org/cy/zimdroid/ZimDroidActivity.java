@@ -1,6 +1,8 @@
 package org.cy.zimdroid;
 
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -14,6 +16,10 @@ import org.cy.zimjava.util.Path;
 import org.cy.zimjava.util.ZimSyntax;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -28,7 +34,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -415,5 +420,4 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 			}
 		}
 	}
-	
 }
