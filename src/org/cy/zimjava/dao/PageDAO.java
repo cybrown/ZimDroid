@@ -21,15 +21,19 @@ import android.util.Log;
  */
 public class PageDAO {
 
-	private IPageRecordDAO prd;
-	private ContentDAO cdao;
-	private String root;
+	private IPageRecordDAO pageRecordDAO;
+	private ContentDAO contentDAO;
+	private String rootPath;
 	private HashMap<Long, Page> cache;
 	
 	public PageDAO(String root) {
-		this.root = root;
-		this.prd = new AndroidSQLitePageRecordDAO(this.root);
-		this.cdao = new ContentDAO(this.root);
+		this.rootPath = root;
+		File f = new File(root);
+		if (!f.isDirectory()) {
+			f.mkdirs();
+		}
+		this.pageRecordDAO = new AndroidSQLitePageRecordDAO(this.rootPath);
+		this.contentDAO = new ContentDAO(this.rootPath);
 		this.cache = new HashMap<Long, Page>();
 	}
 	
@@ -48,7 +52,7 @@ public class PageDAO {
 			pr.setParent(p.getParent().getId());
 		
 		if ((p.getChildren() != null) && (p.getChildren().size() != 0)) {
-			File f = new File(p.getPath().toDirPath(this.root));
+			File f = new File(p.getPath().toDirPath(this.rootPath));
 			Double childrenkey = f.lastModified()/1000.0d;
 			pr.setChildrenkey(childrenkey);
 			pr.setHaschildren(p.getChildren().size() != 0);
@@ -58,7 +62,7 @@ public class PageDAO {
 		}
 		
 		if (p.hasContent()) {
-			File f = new File(p.getPath().toFilePath(this.root));
+			File f = new File(p.getPath().toFilePath(this.rootPath));
 			Double contentkey = f.lastModified()/1000.0d;
 			pr.setContentkey(contentkey);
 			pr.setHascontent(true);
@@ -76,7 +80,7 @@ public class PageDAO {
 		res = this.cache.get(id);
 		if (res == null) {
 			res = new Page(this);
-			PageRecord pr = this.prd.findById(id);
+			PageRecord pr = this.pageRecordDAO.findById(id);
 			if (pr != null) {
 				Pagerecord2Page(pr, res);
 				res.setModified(false);
@@ -105,7 +109,7 @@ public class PageDAO {
 				list.add(p);
 			}
 		}
-		for (PageRecord pr: this.prd.findByParentId(parent, true)) {
+		for (PageRecord pr: this.pageRecordDAO.findByParentId(parent, true)) {
 			tmp = this.findById(pr.getId());
 			if (tmp == null) {
 				tmp = new Page(this);
@@ -183,9 +187,9 @@ public class PageDAO {
 		System.out.println("Saving " + page.getPath().toString());
 		PageRecord pr = page.getId() == 0
 			? new PageRecord()
-			: this.prd.findById(page.getId());
+			: this.pageRecordDAO.findById(page.getId());
 		Page2Pagerecord(pr, page);
-		if (this.prd.save(pr)) {
+		if (this.pageRecordDAO.save(pr)) {
 			// The page is new, the id was just generated in pagerecord
 			if (page.getId() == 0)
 				page.setId(pr.getId());
@@ -200,32 +204,32 @@ public class PageDAO {
 	}
 	
 	public Content loadContent(Path path) {
-		Content c = this.cdao.load(path);
+		Content c = this.contentDAO.load(path);
 		return c;
 	}
 	
 	public boolean delete(Page page) {
-		this.prd.delete(page.getId());
-		this.cdao.delete(page.getPath());
+		this.pageRecordDAO.delete(page.getId());
+		this.contentDAO.delete(page.getPath());
 		this.deleteFolder(page);
 		this.cache.remove(page);
 		return true;
 	}
 	
 	public boolean saveContent(Page page) {
-		return this.cdao.save(page.getContent(), page.getPath());
+		return this.contentDAO.save(page.getContent(), page.getPath());
 	}
 	
 	public boolean deleteContent(Page page) {
-		return this.cdao.delete(page.getPath());
+		return this.contentDAO.delete(page.getPath());
 	}
 	
 	public boolean moveFiles(Page page, Path newPath) {
 		// Compute old and new path
-		String old_content_path = page.getPath().toFilePath(this.root);
-		String new_content_path = newPath.toFilePath(this.root);
-		String old_children_path = page.getPath().toDirPath(this.root);
-		String new_children_path = newPath.toDirPath(this.root);
+		String old_content_path = page.getPath().toFilePath(this.rootPath);
+		String new_content_path = newPath.toFilePath(this.rootPath);
+		String old_children_path = page.getPath().toDirPath(this.rootPath);
+		String new_children_path = newPath.toDirPath(this.rootPath);
 
 		// Create java files
 		File content_source = new File(old_content_path);
@@ -255,7 +259,7 @@ public class PageDAO {
 	}
 	
 	public boolean deleteFolder(Page page) {
-		String path = page.getPath().toDirPath(this.root);
+		String path = page.getPath().toDirPath(this.rootPath);
 		File f = new File(path);
 		if (f.isDirectory())
 			return f.delete();
@@ -263,6 +267,6 @@ public class PageDAO {
 	}
 	
 	public void close() {
-		this.prd.close();
+		this.pageRecordDAO.close();
 	}
 }

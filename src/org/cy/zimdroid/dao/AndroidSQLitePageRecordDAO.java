@@ -1,5 +1,6 @@
 package org.cy.zimdroid.dao;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,6 +28,10 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	
 	protected void setRoot(String root) {
 		this.root = root;
+		File f = new File(this.root + "/.zim");
+		if (!f.isDirectory()) {
+			f.mkdirs();
+		}
 		ZimdroidSQLiteHelper zsh = new ZimdroidSQLiteHelper(this.root + "/.zim/index.db");
 		this.db = zsh.getWritableDatabase();
 	}
