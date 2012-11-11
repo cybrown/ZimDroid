@@ -35,13 +35,24 @@ public class Page {
 	private List<Page> children;
 	private Path path;
 	private boolean modified;
+	private boolean created;
 	
 	public boolean isModified() {
 		return modified;
 	}
 
 	public void setModified(boolean modified) {
+		if (!this.created)
+			return;
 		this.modified = modified;
+	}
+
+	public boolean isCreated() {
+		return created;
+	}
+
+	public void setCreated(boolean value) {
+		this.created = value;
 	}
 
 	public long getParentId() {
@@ -132,7 +143,9 @@ public class Page {
 
 	public Content getContent() {
 		if (!this.is_content_loaded) {
+			this.setCreated(false);
 			this.setContent(this.pdao.loadContent(this.getPath()));
+			this.setCreated(true);
 			this.is_content_loaded = true;
 		}
 		return content;

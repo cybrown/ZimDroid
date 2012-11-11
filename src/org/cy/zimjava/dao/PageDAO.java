@@ -11,6 +11,8 @@ import org.cy.zimjava.entity.Page;
 import org.cy.zimjava.record.PageRecord;
 import org.cy.zimjava.util.Path;
 
+import android.util.Log;
+
 /**
  * Fetch pages from persistence.
  * Pages can use this class to fetch lazy loaded information.
@@ -82,6 +84,7 @@ public class PageDAO {
 			System.out.println("Loading (" + id + ") " + res.getPath().toString());
 		}
 		this.cache.put(id, res);
+		res.setCreated(true);
 		return res;
 	}
 	
@@ -113,9 +116,11 @@ public class PageDAO {
 			if (list.contains(tmp)) {
 				continue;
 			}
+			tmp.setCreated(false);
 			Pagerecord2Page(pr, tmp);
 			tmp.setModified(false);
 			list.add(tmp);
+			tmp.setCreated(true);
 		}
 		return list;
 	}
@@ -154,6 +159,7 @@ public class PageDAO {
 			this.save(cur);
 			lst.remove(0);
 			prec = cur;
+			cur.setCreated(true);
 		}
 		
 		return cur;
@@ -186,10 +192,11 @@ public class PageDAO {
 			if (page.isChildrenLoaded() && !page.hasChildren())
 				this.deleteFolder(page);
 			this.saveContent(page);
+			page.setModified(false);
 			return true;
 		}
-		page.setModified(false);
-		return true;
+		Log.e("CY", "Failed to save page record.");
+		return false;
 	}
 	
 	public Content loadContent(Path path) {
