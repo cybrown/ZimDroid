@@ -81,7 +81,6 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	//???
 	private String notebook_uri;	// Get from intent
 	Timer autoSave;
-	TimerTask autoSaveTask;
 	
 	// Activity Life Cycle
 	@Override
@@ -185,7 +184,6 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     public void onPause() {
     	super.onPause();
     	Log.d("CY", "Remove autosave timer.");
-    	this.autoSaveTask.cancel();
     	this.autoSave.cancel();
     }
     
@@ -194,15 +192,14 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     	Log.d("CY", "Set up autosave timer.");
     	this.autoSave = new Timer();
     	final ZimDroidActivity that = this;
-        this.autoSaveTask = new TimerTask() {
+    	this.autoSave.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				if (that.getNotebook().saveAll()) {
 					Log.d("CY", "Autosave...");
 				}
 			}
-        };
-    	this.autoSave.schedule(this.autoSaveTask, 1000, 1000);
+        }, 1000, 1000);
     }
     
     @Override
