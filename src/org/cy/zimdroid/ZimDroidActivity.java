@@ -1,8 +1,6 @@
 package org.cy.zimdroid;
 
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -16,10 +14,6 @@ import org.cy.zimjava.util.Path;
 import org.cy.zimjava.util.ZimSyntax;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
