@@ -104,6 +104,19 @@
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent" >
 
+                <EditText
+                    android:id="@+id/txtBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:ems="10"
+                    android:gravity="center_vertical|top"
+                    android:inputType="textMultiLine" />
+
+                <WebView
+                    android:id="@+id/wvBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
             </FrameLayout>
         </LinearLayout>
 

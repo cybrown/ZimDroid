@@ -76,7 +76,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	private EditText txtBody;
 	private View lytNav;
 	private ListView lstNotes;
-	private WebView wv;
+	private WebView wvBody;
 	
 	//???
 	private String notebook_uri;	// Get from intent
@@ -94,11 +94,11 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         lstNotes = (ListView)(findViewById(R.id.lstNotes));
         lstNotes.setOnItemClickListener(this);
 		this.lytNav = (View)findViewById(R.id.lytNav);
-    	this.txtBody = new EditText(this);
-    	this.wv = new WebView(this);
+    	this.txtBody = (EditText)findViewById(R.id.txtBody);
+    	this.wvBody = (WebView)findViewById(R.id.wvBody);
     	final ZimDroidActivity that = this;
     		// Initializing clicking on a link in webview
-    	this.wv.setWebViewClient(new WebViewClient() {
+    	this.wvBody.setWebViewClient(new WebViewClient() {
     		@Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
     			Path path = currentViewerPage.getPath().clone().fromZimPath(url);
     			Log.d("CY", "Go to page: " + path.toString());
@@ -328,15 +328,19 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         if (this.showSource) {
             txtBody.setText(this.body);
             this.bodyIsModified = true;	// this.body will be modified in EditText
+            this.txtBody.setVisibility(View.VISIBLE);
+            this.wvBody.setVisibility(View.GONE);
         }
         else {
-        	this.wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
+        	this.wvBody.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
+            this.txtBody.setVisibility(View.GONE);
+            this.wvBody.setVisibility(View.VISIBLE);
         }
 
         // Show correct view
-        FrameLayout lytViewer = (FrameLayout)findViewById(R.id.lytViewer);
-    	lytViewer.removeAllViews();
-    	lytViewer.addView(this.showSource ? this.txtBody : this.wv);
+//        FrameLayout lytViewer = (FrameLayout)findViewById(R.id.lytViewer);
+//    	lytViewer.removeAllViews();
+//    	lytViewer.addView(this.showSource ? this.txtBody : this.wvBody);
     }
 
     /**
