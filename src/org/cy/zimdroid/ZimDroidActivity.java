@@ -199,7 +199,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 					Log.d("CY", "Autosave...");
 				}
 			}
-        }, 1000, 1000);
+        }, 1000, 5000);
     }
     
     @Override
