@@ -356,10 +356,10 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
             this.bodyIsModified = true;
         }
         else {
+        	this.body = this.getCurrentBody();
         	if (this.bodyIsModified) {
         		this.saveBodyToPage();
         	}
-        	this.body = this.getCurrentBody();
         	this.bodyIsModified = false;
         	this.wv.loadDataWithBaseURL(null, ZimSyntax.toHtml(this.body), "text/html", "utf-8", null);
             viewToAdd = this.wv;
@@ -371,8 +371,8 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
     
     protected void saveBodyToPage() {
     	// If page doesn't has a content and body is not empty, create a new content
-    	if (!this.currentViewerPage.hasContent() && (!this.body.equals(""))) {
-    		this.currentViewerPage.setContent(new Content(this.currentViewerPage));
+    	if (!this.currentViewerPage.hasContent() && (this.body.length() != 0)) {
+    		this.currentViewerPage.setContent(new Content());
     	}
     	// If page has a content, set it's body
     	if (this.currentViewerPage.hasContent()) {

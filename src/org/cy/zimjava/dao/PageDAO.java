@@ -191,10 +191,9 @@ public class PageDAO {
 		return false;
 	}
 	
-	public boolean loadContent(Page page) {
-		Content c = this.cdao.load(page.getPath(), page);
-		page.setContent(c);
-		return true;
+	public Content loadContent(Path path) {
+		Content c = this.cdao.load(path);
+		return c;
 	}
 	
 	public boolean delete(Page page) {

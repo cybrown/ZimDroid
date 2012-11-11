@@ -3,8 +3,6 @@ package org.cy.zimjava.entity;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cy.zimjava.util.IContentHost;
-
 public class Content {
 
 	public static final String EOL = "\n";	// TODO Organize this value (EOL)
@@ -12,7 +10,7 @@ public class Content {
 	private Map<String, String> headers;
 	private String body;
 	
-	public Content(IContentHost host) {
+	public Content() {
 		this.headers = new HashMap<String, String>();
 		this.body = "";
 		this.addHeader("Content-Type", "text/x-zim-wiki");

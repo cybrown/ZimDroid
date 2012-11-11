@@ -3,12 +3,11 @@ package org.cy.zimjava.entity;
 import java.util.List;
 
 import org.cy.zimjava.dao.PageDAO;
-import org.cy.zimjava.util.IContentHost;
 import org.cy.zimjava.util.Path;
 
 import android.util.Log;
 
-public class Page implements IContentHost {
+public class Page {
 	
 	public String toString() {
 		return this.basename + ":\n" + this.getContent();
@@ -133,7 +132,7 @@ public class Page implements IContentHost {
 
 	public Content getContent() {
 		if (!this.is_content_loaded) {
-			this.pdao.loadContent(this);
+			this.setContent(this.pdao.loadContent(this.getPath()));
 			this.is_content_loaded = true;
 		}
 		return content;
@@ -144,24 +143,11 @@ public class Page implements IContentHost {
 	}
 
 	public void setContent(Content content) {
+		if (this.is_content_loaded)
+			Log.e("CY", "Loading new Content in Page, but last content is not null");
 		this.setModified(true);
 		this.is_content_loaded = true;
-		
-			try {
-				throw new Exception();
-			}
-			catch (Exception ex) {
-	
-				if (this.content != null) {
-					Log.e("CY", "Content was not null.", ex);
-				}
-//				else {
-//					Log.e("CY", "Content was null.", ex);
-//				}
-			}
-		
 		this.content = content;
-		
 	}
 	
 	public void setBody(String text) {
