@@ -160,6 +160,7 @@ public class PageDAO {
 			cur = new Page(this);
 			cur.setBasename(name);
 			cur.setParent(prec);
+			cur.setModified(true);
 			this.save(cur);
 			lst.remove(0);
 			prec = cur;
@@ -173,10 +174,12 @@ public class PageDAO {
 		LinkedList<Page> tmp = new LinkedList<Page>();
 		boolean somethingWasSaved = false;
 		for (Page i: this.cache.values()) {
+			Log.d("SAVE ALL", "Add page " + i.getBasename() + " to saveall list.");
 			tmp.add(i);
 		}
 		for (Page i: tmp) {
 			somethingWasSaved = somethingWasSaved | this.save(i);
+			Log.d("SAVE ALL", somethingWasSaved ? i.getBasename() + " saved..." : i.getBasename() + " not saved...");
 		}
 		return somethingWasSaved;	// TODO Verify output...
 	}
@@ -191,8 +194,11 @@ public class PageDAO {
 		Page2Pagerecord(pr, page);
 		if (this.pageRecordDAO.save(pr)) {
 			// The page is new, the id was just generated in pagerecord
-			if (page.getId() == 0)
+			Log.d("SAVE", "Put page " + page.getBasename() + " in cache.");
+			if (page.getId() == 0) {
 				page.setId(pr.getId());
+			}
+			this.cache.put(page.getId(), page);
 			if (page.isChildrenLoaded() && !page.hasChildren())
 				this.deleteFolder(page);
 			this.saveContent(page);

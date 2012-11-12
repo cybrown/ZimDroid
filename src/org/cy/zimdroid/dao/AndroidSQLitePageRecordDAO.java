@@ -76,6 +76,7 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 			if (last_id == -1)
 				return false;
 			pr.setId(last_id);
+			this.cache.put(pr.getId(), pr);
 		}
 		else {
 			this.db.update("pages", cv, "id = ?", new String[]{Long.toString(pr.getId())});

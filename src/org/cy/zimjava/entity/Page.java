@@ -25,6 +25,7 @@ public class Page {
 		this.is_content_loaded = false;
 		this.is_parent_loaded = false;
 		this.is_path_loaded = false;
+		this.modified = false;
 	}
 	
 	private long id;

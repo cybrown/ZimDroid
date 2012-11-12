@@ -1,6 +1,8 @@
 package org.cy.zimdroid;
 
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -290,11 +292,18 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		for (Page tmp: this.currentBrowserPage.getChildren()) {
 			listOfChildrenName.add(tmp.getBasename());
 		}
+		Collections.sort(this.listOfChildrenName, new Comparator<String>() {
+			@Override
+			public int compare(String arg0, String arg1) {
+				return arg0.compareToIgnoreCase(arg1);
+			}
+		});
 		((TextView)findViewById(R.id.tvPath)).setText(p.getPath().toString());
+		
 		this.adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listOfChildrenName.toArray(new String[0]));
 		lstNotes.setAdapter(this.adapter);
 	}
-
+	
 
 	/**
 	 * Return the state of the body in the viewer, get it from EditText if in modification.
@@ -363,11 +372,18 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	class HistoryManager implements OnClickListener {
 
 		Map<View, Page> map;
+		LinkedList<Page> last5;
 		
 		public HistoryManager() {
 			this.map = new LinkedHashMap<View, Page>();
+			this.last5 = new LinkedList<Page>();
 		}
 		
+		/**
+		 * Only add page to the history if not in the last 5 visited pages.
+		 * @param view
+		 * @param page
+		 */
 		protected void addPage(View view, Page page) {
 			this.map.put(view, page);
 		}
@@ -380,17 +396,23 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 			}
 		}
 		
-		public void addToHistory(Page p) {
-			Button btn = new Button(getApplicationContext());
-			btn.setText(p.getBasename());
-			LinearLayout lytHistory = (LinearLayout)findViewById(R.id.lytHistory);
-			HorizontalScrollView hsv = (HorizontalScrollView)findViewById(R.id.scrlHistory);
-			lytHistory.addView(btn);
-			// Scroll to end
-			// TODO Bug this do not scroll to last button.
-			this.addPage(btn, p);
-			btn.setOnClickListener(this);
-			hsv.scrollBy(hsv.getWidth(), 0);
+		public void addToHistory(Page page) {
+			if (!this.last5.contains(page)) {
+				Button btn = new Button(getApplicationContext());
+				btn.setText(page.getBasename());
+				LinearLayout lytHistory = (LinearLayout)findViewById(R.id.lytHistory);
+				HorizontalScrollView hsv = (HorizontalScrollView)findViewById(R.id.scrlHistory);
+				lytHistory.addView(btn);
+				// Scroll to end
+				// TODO Bug this does not scroll to last button.
+				this.addPage(btn, page);
+				btn.setOnClickListener(this);
+				hsv.scrollBy(hsv.getWidth(), 0);
+				this.last5.add(page);
+				if (this.last5.size() > 5) {
+					this.last5.removeFirst();
+				}
+			}
 		}
 		
 		public long[] getState() {
