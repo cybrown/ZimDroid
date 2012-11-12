@@ -4,6 +4,7 @@ package org.cy.zimdroid;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -72,12 +73,14 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	private LinkedList<String> listOfChildrenName;	// From currentBrowserPage.getParent()
 	private ArrayAdapter<String> adapter;			// From listOfChildrenName
 	private long lastBackPressed;
+	PathManager pathManager;
 	
 	// Views
 	private EditText txtBody;
 	private View lytNav;
 	private ListView lstNotes;
 	private WebView wvBody;
+	private LinearLayout lytPathbtn;
 	
 	//???
 	private String notebook_uri;	// Get from intent
@@ -97,6 +100,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 		this.lytNav = (View)findViewById(R.id.lytNav);
     	this.txtBody = (EditText)findViewById(R.id.txtBody);
     	this.wvBody = (WebView)findViewById(R.id.wvBody);
+    	this.lytPathbtn = (LinearLayout)findViewById(R.id.lytPathbtn);
     	final ZimDroidActivity that = this;
     		// Initializing clicking on a link in webview
     	this.wvBody.setWebViewClient(new WebViewClient() {
@@ -113,8 +117,9 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         
         // Initialize default state
         long current_id = 0;
-        listOfChildrenName = new LinkedList<String>();
-        historyManager = new HistoryManager();
+        this.listOfChildrenName = new LinkedList<String>();
+        this.historyManager = new HistoryManager();
+		this.pathManager = new PathManager();
     	
         // Initialize state from bundle
         long[] saved_history = new long[0];
@@ -274,7 +279,8 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         if (addToHistory) {
         	this.historyManager.addToHistory(page);
         }
-        this.browsePage(page.hasChildren() ? page : page.getParent());
+        //this.browsePage(page.hasChildren() ? page : page.getParent());
+        this.browsePage(page);
         this.applyBody();
 	}
 	
@@ -298,12 +304,28 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 				return arg0.compareToIgnoreCase(arg1);
 			}
 		});
-		((TextView)findViewById(R.id.tvPath)).setText(p.getPath().toString());
+		
+		// Refresh path bar
+		this.lytPathbtn.removeAllViews();
+		this.pathManager.clear();
+		Page cur = p;
+		while (cur.getParent() != null) {
+			cur = cur.getParent();
+			Button b = new Button(this);
+			b.setText(cur.getBasename().length() == 0 ? "ROOT" : cur.getBasename());
+			b.setOnClickListener(this.pathManager);
+			this.pathManager.addPage(b, cur);
+			this.lytPathbtn.addView(b, 0);
+		}
+		// Put current page at bottom of path bar
+		Button b = new Button(this);
+		b.setText(p.getBasename().length() == 0 ? "ROOT" : p.getBasename());
+		b.setEnabled(false);
+		this.lytPathbtn.addView(b);
 		
 		this.adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listOfChildrenName.toArray(new String[0]));
 		lstNotes.setAdapter(this.adapter);
 	}
-	
 
 	/**
 	 * Return the state of the body in the viewer, get it from EditText if in modification.
@@ -356,12 +378,37 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
      */
     protected void applyFullscreen() {
     	getWindow().setFlags(this.fullscreen ? WindowManager.LayoutParams.FLAG_FULLSCREEN : 0, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		findViewById(R.id.tvPath).setVisibility(this.fullscreen ? View.GONE : View.VISIBLE);
 		findViewById(R.id.scrlHistory).setVisibility(this.fullscreen ? View.GONE : View.VISIBLE);
     	((ToggleButton)findViewById(R.id.btnFullscreen)).setChecked(this.fullscreen);
     }
 
     // Nested classes
+    
+    class PathManager implements OnClickListener {
+
+    	private HashMap<View, Page> pathBar;
+    	
+    	public PathManager() {
+    		this.pathBar = new HashMap<View, Page>();
+    	}
+    	
+    	public void addPage(View view, Page page) {
+    		this.pathBar.put(view, page);
+    	}
+    	
+    	public void clear() {
+    		this.pathBar.clear();
+    	}
+    	
+		@Override
+		public void onClick(View view) {
+			Page goTo = pathBar.get(view);
+			if (goTo != null) {
+				browsePage(goTo);
+			}
+		}
+    	
+    }
     
 	/**
 	 * This class has the responsability of create new history buttons, listen when
