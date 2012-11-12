@@ -218,7 +218,7 @@ public class PageDAO {
 		this.pageRecordDAO.delete(page.getId());
 		this.contentDAO.delete(page.getPath());
 		this.deleteFolder(page);
-		this.cache.remove(page);
+		this.cache.remove(page.getId());
 		return true;
 	}
 	
