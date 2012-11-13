@@ -40,7 +40,7 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		if ((this.db == null) || (!this.db.isOpen())) {
 			Log.e("CY", "DB is null or is not open.");
 		}
-		this.db.delete("pages", "id = ", new String[]{Long.toString(id)});
+		this.db.delete("pages", "id = ?", new String[]{Long.toString(id)});
 		this.cache.remove(id);
 		return true;
 	}

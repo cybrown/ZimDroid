@@ -50,8 +50,8 @@ public class Notebook {
 		return this.pdao.createByPath(path);
 	}
 	
-	public void delete(Page p) {
-		this.pdao.delete(p);
+	public boolean delete(Page p) {
+		return this.pdao.delete(p);
 	}
 	
 	public synchronized boolean saveAll() {

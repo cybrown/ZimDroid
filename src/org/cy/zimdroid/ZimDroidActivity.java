@@ -17,6 +17,8 @@ import org.cy.zimjava.util.Path;
 import org.cy.zimjava.util.ZimSyntax;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -28,6 +30,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,7 +46,7 @@ import android.widget.ToggleButton;
  * @author sigh
  *
  */
-public class ZimDroidActivity extends Activity implements OnItemClickListener {
+public class ZimDroidActivity extends Activity implements OnItemClickListener, OnItemLongClickListener {
 	
 	// Application global
 	private Notebook notebook;
@@ -96,6 +99,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
         setContentView(R.layout.activity_main);
         lstNotes = (ListView)(findViewById(R.id.lstNotes));
         lstNotes.setOnItemClickListener(this);
+        lstNotes.setOnItemLongClickListener(this);
 		this.lytNav = (View)findViewById(R.id.lytNav);
     	this.txtBody = (EditText)findViewById(R.id.txtBody);
     	this.wvBody = (WebView)findViewById(R.id.wvBody);
@@ -235,6 +239,25 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Page page = this.currentBrowserPage.getChild(this.listOfChildrenName.get(position));
 		this.viewPage(page);
+	}
+	
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		final Page page = this.currentBrowserPage.getChild(this.listOfChildrenName.get(position));
+		final ZimDroidActivity that = this;
+		new AlertDialog.Builder(this)
+		.setTitle("Delete")
+		.setMessage("Do you really want to delete page " + page.getBasename() + "?")
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Toast.makeText(ZimDroidActivity.this, page.getBasename() + " deleted...", Toast.LENGTH_SHORT).show();
+				that.getNotebook().delete(page);
+				that.browsePage(that.currentBrowserPage);
+			}
+		})
+		.setNegativeButton(android.R.string.no, null).show();
+		return false;
 	}
 	
 	public void btn_parent_click(View v) {
@@ -482,4 +505,5 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener {
 			}
 		}
 	}
+
 }

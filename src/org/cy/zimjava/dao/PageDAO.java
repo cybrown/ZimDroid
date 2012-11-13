@@ -215,6 +215,9 @@ public class PageDAO {
 	}
 	
 	public boolean delete(Page page) {
+		if (page.getParent() != null) {
+			page.getParent().invalidateChildren();
+		}
 		this.pageRecordDAO.delete(page.getId());
 		this.contentDAO.delete(page.getPath());
 		this.deleteFolder(page);
