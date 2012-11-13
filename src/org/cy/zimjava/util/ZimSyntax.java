@@ -24,12 +24,12 @@ public class ZimSyntax {
         r.add(new Replacement("\\*\\*(.*?)\\*\\*", "<b>$1</b>"));
         r.add(new Replacement("//(.*?)//", "<i>$1</i>"));
         r.add(new Replacement("(^|\n)\\* (.*)", "$1<li>$2</li>"));
-        r.add(new Replacement("(^|\n)======(.*?)(======)?((\r?\n)|$)", "$1<h6>$2</h6>"));
-        r.add(new Replacement("(^|\n)=====(.*?)(=====)?((\r?\n)|$)", "$1<h5>$2</h5>"));
-        r.add(new Replacement("(^|\n)====(.*?)(====)?((\r?\n)|$)", "$1<h4>$2</h4>"));
-        r.add(new Replacement("(^|\n)===(.*?)(===)?((\r?\n)|$)", "$1<h3>$2</h3>"));
-        r.add(new Replacement("(^|\n)==(.*?)(==)?((\r?\n)|$)", "$1<h2>$2</h2>"));
-        r.add(new Replacement("(^|\n)=(.*?)(=)?((\r?\n)|$)", "$1<h1>$2</h1>"));
+        r.add(new Replacement("(^|\n)======(.*?)(======)?((\r?\n)|$)", "$1<h1>$2</h1>"));
+        r.add(new Replacement("(^|\n)=====(.*?)(=====)?((\r?\n)|$)", "$1<h2>$2</h2>"));
+        r.add(new Replacement("(^|\n)====(.*?)(====)?((\r?\n)|$)", "$1<h3>$2</h3>"));
+        r.add(new Replacement("(^|\n)===(.*?)(===)?((\r?\n)|$)", "$1<h4>$2</h4>"));
+        r.add(new Replacement("(^|\n)==(.*?)(==)?((\r?\n)|$)", "$1<h5>$2</h5>"));
+        r.add(new Replacement("(^|\n)=(.*?)(=)?((\r?\n)|$)", "$1<h6>$2</h6>"));
         r.add(new Replacement("\\[\\[(.*?)\\|(.*?)\\]\\]", "<a href=\"$1\">$2</a>"));
         r.add(new Replacement("\\[\\[(.*?)\\]\\]", "<a href=\"$1\">$1</a>"));
         r.add(new Replacement("\r?\n", "<br>"));
