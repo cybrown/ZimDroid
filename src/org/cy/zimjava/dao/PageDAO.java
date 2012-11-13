@@ -215,8 +215,14 @@ public class PageDAO {
 	}
 	
 	public boolean delete(Page page) {
+		Log.d("DELETE", "Delete: " + page.getBasename());
 		if (page.getParent() != null) {
 			page.getParent().invalidateChildren();
+		}
+		if (page.hasChildren()) {
+			for (Page p: page.getChildren()) {
+				this.delete(p);
+			}
 		}
 		this.pageRecordDAO.delete(page.getId());
 		this.contentDAO.delete(page.getPath());
