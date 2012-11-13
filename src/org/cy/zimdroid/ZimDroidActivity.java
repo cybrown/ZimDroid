@@ -297,7 +297,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 		if (page.getId() == 1)	// We can not view the root page
 			return;
         this.showSource = false;
-        this.body = page.hasContent() ? page.getContent().getBody() : "=" + page.getBasename() + ":\n";
+        this.body = page.hasContent() ? page.getContent().getBody() : "======" + page.getBasename() + ":\n";
         this.bodyIsModified = false;
         this.currentViewerPage = page;
         if (addToHistory) {
