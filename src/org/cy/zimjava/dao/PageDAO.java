@@ -174,12 +174,10 @@ public class PageDAO {
 		LinkedList<Page> tmp = new LinkedList<Page>();
 		boolean somethingWasSaved = false;
 		for (Page i: this.cache.values()) {
-			Log.d("SAVE ALL", "Add page " + i.getBasename() + " to saveall list.");
 			tmp.add(i);
 		}
 		for (Page i: tmp) {
 			somethingWasSaved = somethingWasSaved | this.save(i);
-			Log.d("SAVE ALL", somethingWasSaved ? i.getBasename() + " saved..." : i.getBasename() + " not saved...");
 		}
 		return somethingWasSaved;	// TODO Verify output...
 	}

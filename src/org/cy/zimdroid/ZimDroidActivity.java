@@ -238,7 +238,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Page page = this.currentBrowserPage.getChild(this.listOfChildrenName.get(position));
-		this.viewPage(page);
+		this.browsePage(page);
 	}
 	
 	@Override
@@ -294,14 +294,15 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 	 * @param addToHistory false if do not add to history.
 	 */
 	protected void viewPage(Page page, boolean addToHistory) {
+		if (page.getId() == 1)	// We can not view the root page
+			return;
         this.showSource = false;
-        this.body = page.hasContent() ? page.getContent().getBody() : "";
+        this.body = page.hasContent() ? page.getContent().getBody() : "=" + page.getBasename() + ":\n";
         this.bodyIsModified = false;
         this.currentViewerPage = page;
         if (addToHistory) {
         	this.historyManager.addToHistory(page);
         }
-        //this.browsePage(page.hasChildren() ? page : page.getParent());
         this.browsePage(page);
         this.applyBody();
 	}
@@ -331,19 +332,14 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 		this.lytPathbtn.removeAllViews();
 		this.pathManager.clear();
 		Page cur = p;
-		while (cur.getParent() != null) {
-			cur = cur.getParent();
+		while (cur != null) {
 			Button b = new Button(this);
 			b.setText(cur.getBasename().length() == 0 ? "ROOT" : cur.getBasename());
 			b.setOnClickListener(this.pathManager);
 			this.pathManager.addPage(b, cur);
 			this.lytPathbtn.addView(b, 0);
+			cur = cur.getParent();
 		}
-		// Put current page at bottom of path bar
-		Button b = new Button(this);
-		b.setText(p.getBasename().length() == 0 ? "ROOT" : p.getBasename());
-		b.setEnabled(false);
-		this.lytPathbtn.addView(b);
 		
 		this.adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listOfChildrenName.toArray(new String[0]));
 		lstNotes.setAdapter(this.adapter);
@@ -406,6 +402,11 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 
     // Nested classes
     
+    /**
+     * This class has the responsability of the path bar.
+     * @author sigh
+     *
+     */
     class PathManager implements OnClickListener {
 
     	private HashMap<View, Page> pathBar;
@@ -426,7 +427,11 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 		public void onClick(View view) {
 			Page goTo = pathBar.get(view);
 			if (goTo != null) {
-				browsePage(goTo);
+				// If the page to browse is already the current one, view it
+				if (goTo == currentBrowserPage)
+					viewPage(goTo);
+				else
+					browsePage(goTo);
 			}
 		}
     	
