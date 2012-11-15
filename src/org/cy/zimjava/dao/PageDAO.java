@@ -37,58 +37,20 @@ public class PageDAO {
 		this.cache = new HashMap<Long, Page>();
 	}
 	
-	private void Pagerecord2Page(PageRecord pr, Page p) {
-		p.setId(pr.getId());
-		p.setBasename(pr.getBasename());
-		p.setParentId(pr.getParent());	// Set only parent id, for lazy loading
-		// Other properties are lazy loaded...
-	}
-	
-	private void Page2Pagerecord(PageRecord pr, Page p) {
-		pr.setId(p.getId());
-		pr.setBasename(p.getBasename());
-		
-		if (p.getParent() != null)
-			pr.setParent(p.getParent().getId());
-		
-		if ((p.getChildren() != null) && (p.getChildren().size() != 0)) {
-			File f = new File(p.getPath().toDirPath(this.rootPath));
-			Double childrenkey = f.lastModified()/1000.0d;
-			pr.setChildrenkey(childrenkey);
-			pr.setHaschildren(p.getChildren().size() != 0);
-		}
-		else {
-			pr.setChildrenkey(null);
-		}
-		
-		if (p.hasContent()) {
-			File f = new File(p.getPath().toFilePath(this.rootPath));
-			Double contentkey = f.lastModified()/1000.0d;
-			pr.setContentkey(contentkey);
-			pr.setHascontent(true);
-		}
-		else {
-			pr.setHascontent(false);
-			pr.setContentkey(null);
-		}
-	}
-	
 	public Page findById(long id) {
 		if (id == 0)
 			return null;
 		Page res;
 		res = this.cache.get(id);
 		if (res == null) {
-			res = new Page(this);
 			PageRecord pr = this.pageRecordDAO.findById(id);
 			if (pr != null) {
-				Pagerecord2Page(pr, res);
-				res.setModified(false);
+				res = new Page(this);
+				res.hydrate(pr.getId(), pr.getBasename(), pr.getParent());
+				this.cache.put(id, res);
 			}
 			System.out.println("Loading (" + id + ") " + res.getPath().toString());
 		}
-		this.cache.put(id, res);
-		res.setCreated(true);
 		return res;
 	}
 	
@@ -120,23 +82,12 @@ public class PageDAO {
 			if (list.contains(tmp)) {
 				continue;
 			}
-			tmp.setCreated(false);
-			Pagerecord2Page(pr, tmp);
-			tmp.setModified(false);
+			tmp.hydrate(pr.getId(), pr.getBasename(), pr.getParent());
 			list.add(tmp);
-			tmp.setCreated(true);
 		}
 		return list;
 	}
-	
-	public Page findByPath(Path path) {
-		Page cur = this.findRoot();
-		for (String name: path.getPath()) {
-			cur = cur.getChild(name);
-		}
-		return cur;
-	}
-	
+
 	public Page createByPath(Path path) {
 		List<String> lst = path.getPath();
 		Page cur = this.findRoot();
@@ -158,6 +109,7 @@ public class PageDAO {
 		while (!lst.isEmpty()) {
 			name = lst.get(0);
 			cur = new Page(this);
+			// TODO Problem avec modified et created
 			cur.setBasename(name);
 			cur.setParent(prec);
 			cur.setModified(true);
@@ -222,21 +174,17 @@ public class PageDAO {
 				this.delete(p);
 			}
 		}
-		this.pageRecordDAO.delete(page.getId());
+		this.pageRecordDAO.deleteById(page.getId());
 		this.contentDAO.delete(page.getPath());
 		this.deleteFolder(page);
 		this.cache.remove(page.getId());
 		return true;
 	}
 	
-	public boolean saveContent(Page page) {
-		return this.contentDAO.save(page.getContent(), page.getPath());
+	public void close() {
+		this.pageRecordDAO.close();
 	}
-	
-	public boolean deleteContent(Page page) {
-		return this.contentDAO.delete(page.getPath());
-	}
-	
+
 	public boolean moveFiles(Page page, Path newPath) {
 		// Compute old and new path
 		String old_content_path = page.getPath().toFilePath(this.rootPath);
@@ -271,7 +219,11 @@ public class PageDAO {
 		return success;
 	}
 	
-	public boolean deleteFolder(Page page) {
+	private boolean saveContent(Page page) {
+		return this.contentDAO.save(page.getContent(), page.getPath());
+	}
+		
+	private boolean deleteFolder(Page page) {
 		String path = page.getPath().toDirPath(this.rootPath);
 		File f = new File(path);
 		if (f.isDirectory())
@@ -279,7 +231,33 @@ public class PageDAO {
 		return false;
 	}
 	
-	public void close() {
-		this.pageRecordDAO.close();
+	private void Page2Pagerecord(PageRecord pr, Page p) {
+		pr.setId(p.getId());
+		pr.setBasename(p.getBasename());
+		
+		if (p.getParent() != null)
+			pr.setParent(p.getParent().getId());
+		
+		if ((p.getChildren() != null) && (p.getChildren().size() != 0)) {
+			File f = new File(p.getPath().toDirPath(this.rootPath));
+			Double childrenkey = f.lastModified()/1000.0d;
+			pr.setChildrenkey(childrenkey);
+			pr.setHaschildren(p.getChildren().size() != 0);
+		}
+		else {
+			pr.setChildrenkey(null);
+		}
+		
+		if (p.hasContent()) {
+			File f = new File(p.getPath().toFilePath(this.rootPath));
+			Double contentkey = f.lastModified()/1000.0d;
+			pr.setContentkey(contentkey);
+			pr.setHascontent(true);
+		}
+		else {
+			pr.setHascontent(false);
+			pr.setContentkey(null);
+		}
 	}
+
 }

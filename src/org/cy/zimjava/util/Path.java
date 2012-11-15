@@ -2,6 +2,11 @@ package org.cy.zimjava.util;
 
 import java.util.LinkedList;
 
+/**
+ * Path utility class.
+ * @author sigh
+ *
+ */
 public class Path implements Cloneable {
 
 	public String toString() {
@@ -13,6 +18,11 @@ public class Path implements Cloneable {
 		return sb.toString();
 	}
 	
+	/**
+	 * Exports path to an absolute path to file from root.
+	 * @param root
+	 * @return
+	 */
 	public String toFilePath(String root) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(root);
@@ -24,6 +34,11 @@ public class Path implements Cloneable {
 		return sb.toString().replace(" ", "_");
 	}
 	
+	/**
+	 * Exports path to a folder on filesystem from root.
+	 * @param root
+	 * @return
+	 */
 	public String toDirPath(String root) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(root);
@@ -64,7 +79,7 @@ public class Path implements Cloneable {
 	}
 	
 	public String getBaseName() {
-		return this.path.get(this.path.size() - 1);
+		return this.path.getLast();
 	}
 	
 	public LinkedList<String> getPath() {
@@ -74,6 +89,7 @@ public class Path implements Cloneable {
 	/**
 	 * Set path to a string containing a zim path.
 	 * If zimpath is absolute, the path is cleared before.
+	 * If zimpath is relative, the path is used as a current path.
 	 * @param zimpath
 	 * @return
 	 */

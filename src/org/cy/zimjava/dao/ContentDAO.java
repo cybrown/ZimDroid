@@ -10,10 +10,18 @@ import java.io.IOException;
 import org.cy.zimjava.entity.Content;
 import org.cy.zimjava.util.Path;
 
+/**
+ * Class used to handle data files.
+ * @author sigh
+ *
+ */
 public class ContentDAO {
 
 	private String root;
 	
+	/**
+	 * @param root Path to filesystem root for contents. 
+	 */
 	public ContentDAO(String root) {
 		this.root = root;
 	}
@@ -48,6 +56,12 @@ public class ContentDAO {
 		return res;
 	}
 	
+	/**
+	 * Create or update content to specified path.
+	 * @param content
+	 * @param path
+	 * @return
+	 */
 	public boolean save(Content content, Path path) {
 		if (content == null) {
 			return false;
@@ -70,6 +84,11 @@ public class ContentDAO {
 		return true;
 	}
 	
+	/**
+	 * Delete content file.
+	 * @param path
+	 * @return
+	 */
 	public boolean delete(Path path) {
 		String fpath = path.toFilePath(this.root);
 		File f = new File(fpath);

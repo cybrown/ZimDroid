@@ -18,7 +18,6 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 
 	private String root;
 	SQLiteDatabase db;
-	
 	HashMap<Long, PageRecord> cache;
 	
 	public AndroidSQLitePageRecordDAO(String root) {
@@ -36,7 +35,7 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		this.db = zsh.getWritableDatabase();
 	}
 	
-	public boolean delete(long id) {
+	public boolean deleteById(long id) {
 		if ((this.db == null) || (!this.db.isOpen())) {
 			Log.e("CY", "DB is null or is not open.");
 		}
@@ -48,7 +47,7 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	public boolean delete(PageRecord pr) {
 		boolean res = false;
 		if (pr.getId() != 0) {
-			res = this.delete(pr.getId());
+			res = this.deleteById(pr.getId());
 		}
 		this.cache.remove(pr.getId());
 		return res;

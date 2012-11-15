@@ -42,10 +42,6 @@ public class Notebook {
 		return this.pdao.findById(id);
 	}
 	
-	public Page findByPath(Path path) {
-		return this.pdao.findByPath(path);
-	}
-	
 	public Page createByPath(Path path) {
 		return this.pdao.createByPath(path);
 	}
