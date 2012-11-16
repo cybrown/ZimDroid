@@ -93,7 +93,8 @@ public class Page {
 
 	public Page getParent() {
 		if (!this.is_parent_loaded) {
-			this.parent = this.pdao.findById(this.parentId);
+			this.setParent(this.pdao.findById(this.parentId), false);
+			this.setModified(false);
 			this.is_parent_loaded = true;
 		}
 		return parent;
