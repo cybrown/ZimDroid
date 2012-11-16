@@ -63,6 +63,8 @@ public class ZimdroidApplication extends Application {
 			// Do something to destroy notebook
 			this.notebook.close();
 			this.notebook = null;
+			this.db.close();
+			this.db = null;
 			Log.d("CY", "Notebook destroyed.");
 		}
 	}
