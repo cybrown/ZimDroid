@@ -16,7 +16,25 @@ public class Page {
 	private String basename;
 	private boolean modified;
 	private boolean created;
+	private Double contentkey;
+	private Double childrenkey;
 	
+	public Double getContentkey() {
+		return contentkey;
+	}
+
+	public void setContentkey(Double contentkey) {
+		this.contentkey = contentkey;
+	}
+
+	public Double getChildrenkey() {
+		return childrenkey;
+	}
+
+	public void setChildrenkey(Double childrenkey) {
+		this.childrenkey = childrenkey;
+	}
+
 	// Lazy loaded properties
 	private Path path;
 	private Page parent;
@@ -39,7 +57,7 @@ public class Page {
 	 * @param basename
 	 * @param parentId
 	 */
-	public Page hydrate(long id, String basename, long parentId) {
+	public Page hydrate(long id, String basename, long parentId, Double contentkey, Double childrenkey) {
 		this.setId(id);
 		this.setBasename(basename);
 		this.setParentId(parentId);
@@ -48,6 +66,8 @@ public class Page {
 			this.setModified(true);
 			this.pdao.save(this);
 		}
+		this.setContentkey(contentkey);
+		this.setChildrenkey(childrenkey);
 		this.setModified(false);
 		return this;
 	}

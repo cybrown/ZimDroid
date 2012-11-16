@@ -1,6 +1,7 @@
 package org.cy.zimjava.dao;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class PageDAO {
 		if (res == null) {
 			PageRecord pr = this.pageRecordDAO.findById(id);
 			if (pr != null) {
-				res = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent());
+				res = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent(), pr.getContentkey(), pr.getChildrenkey());
 				this.cache.put(id, res);
 			}
 			System.out.println("Loading (" + id + ") " + res.getPath().toString());
@@ -57,11 +58,12 @@ public class PageDAO {
 	}
 	
 	public List<Page> findByParentId(long parent) {
-
+		
 		// Looking into cache
 		LinkedList<Page> list = new LinkedList<Page>();
 		for (Page p: this.cache.values()) {
 			if ((p.getParent() != null) && (p.getParent().getId() == parent)) {
+				Log.e("ADD", "Add cache " + p.getBasename());
 				list.add(p);
 			}
 		}
@@ -74,10 +76,46 @@ public class PageDAO {
 				continue;
 			}
 			if (tmpPage == null) {
-				tmpPage = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent());
+				tmpPage = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent(), pr.getContentkey(), pr.getChildrenkey());
 			}
+			Log.e("ADD", "Add db " + tmpPage.getBasename());
 			list.add(tmpPage);
 		}
+		
+		// Looking in filesystem for new files
+		// TODO Reindex newer files
+		FileFilter txtFilter = new FileFilter() {
+			@Override
+			public boolean accept(File file) {
+				return file.isFile() && file.getName().matches(".*\\.txt");
+			}
+		};
+		File[] files = new File(this.findById(parent).getPath().toDirPath(this.rootPath)).listFiles(txtFilter);
+		if (files != null) {
+			for (File f: files) {
+				// Convert filename to basename
+				String childName = f.getName().replaceFirst("(.*)\\.txt$", "$1").replace('_', ' ');
+				Log.e("CY", "Found " + childName);
+				// Find same basename in parent
+				boolean found = false;
+				for (Page tmp: list) {
+					Log.e("CY", "IN " + tmp.getBasename() + " " + tmp.getBasename().length());
+					if (tmp.getBasename().equals(childName)) {
+						found = true;
+						break;
+					}
+				}
+				// Create page and add it to parent
+				if (!found) {
+					// TODO hydrate with already has a file option
+					Page cur = new Page(this).hydrate(0, childName, parent, f.lastModified()/1000.0d, null);
+					cur.setContent(contentDAO.load(cur.getPath()));
+					Log.e("ADD", "Add fs " + childName + " " + childName.length());
+					list.add(cur);
+				}
+			}
+		}
+			
 		return list;
 	}
 
@@ -101,7 +139,7 @@ public class PageDAO {
 		// While list is not empty, create page
 		while (!lst.isEmpty()) {
 			name = lst.get(0);
-			cur = new Page(this).hydrate(0, name, prec.getId());
+			cur = new Page(this).hydrate(0, name, prec.getId(), null, null);
 			lst.remove(0);
 			prec = cur;
 		}
