@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cy.zimdroid.dao.AndroidSQLitePageRecordDAO;
+import org.cy.zimjava.Path;
 import org.cy.zimjava.entity.Content;
 import org.cy.zimjava.entity.Page;
 import org.cy.zimjava.record.PageRecord;
-import org.cy.zimjava.util.Path;
 
 import android.util.Log;
 
@@ -26,13 +25,13 @@ public class PageDAO {
 	private String rootPath;
 	private HashMap<Long, Page> cache;
 	
-	public PageDAO(String root) {
+	public PageDAO(String root, IPageRecordDAO prdao) {
 		this.rootPath = root;
 		File f = new File(root);
 		if (!f.isDirectory()) {
 			f.mkdirs();
 		}
-		this.pageRecordDAO = new AndroidSQLitePageRecordDAO(this.rootPath);
+		this.pageRecordDAO = prdao;
 		this.contentDAO = new ContentDAO(this.rootPath);
 		this.cache = new HashMap<Long, Page>();
 	}
@@ -45,8 +44,7 @@ public class PageDAO {
 		if (res == null) {
 			PageRecord pr = this.pageRecordDAO.findById(id);
 			if (pr != null) {
-				res = new Page(this);
-				res.hydrate(pr.getId(), pr.getBasename(), pr.getParent());
+				res = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent());
 				this.cache.put(id, res);
 			}
 			System.out.println("Loading (" + id + ") " + res.getPath().toString());
@@ -73,13 +71,13 @@ public class PageDAO {
 		}
 		for (PageRecord pr: this.pageRecordDAO.findByParentId(parent, true)) {
 			tmp = this.findById(pr.getId());
+			if (list.contains(tmp)) {
+				continue;
+			}
 			if (tmp == null) {
 				tmp = new Page(this);
 			}
 			else if (tmp.getParent().getId() != parent)	{	// Parent's id has changed since database write
-				continue;
-			}
-			if (list.contains(tmp)) {
 				continue;
 			}
 			tmp.hydrate(pr.getId(), pr.getBasename(), pr.getParent());
@@ -108,15 +106,9 @@ public class PageDAO {
 		// While list is not empty, create page
 		while (!lst.isEmpty()) {
 			name = lst.get(0);
-			cur = new Page(this);
-			// TODO Problem avec modified et created
-			cur.setBasename(name);
-			cur.setParent(prec);
-			cur.setModified(true);
-			this.save(cur);
+			cur = new Page(this).hydrate(0, name, prec.getId());
 			lst.remove(0);
 			prec = cur;
-			cur.setCreated(true);
 		}
 		
 		return cur;
@@ -179,10 +171,6 @@ public class PageDAO {
 		this.deleteFolder(page);
 		this.cache.remove(page.getId());
 		return true;
-	}
-	
-	public void close() {
-		this.pageRecordDAO.close();
 	}
 
 	public boolean moveFiles(Page page, Path newPath) {

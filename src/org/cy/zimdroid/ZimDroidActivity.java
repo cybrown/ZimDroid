@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.cy.zimjava.Path;
+import org.cy.zimjava.ZimSyntax;
 import org.cy.zimjava.entity.Notebook;
 import org.cy.zimjava.entity.Page;
-import org.cy.zimjava.util.Path;
-import org.cy.zimjava.util.ZimSyntax;
 
 import android.app.Activity;
 import android.app.AlertDialog;

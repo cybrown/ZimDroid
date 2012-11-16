@@ -2,8 +2,8 @@ package org.cy.zimjava.entity;
 
 import java.util.List;
 
+import org.cy.zimjava.Path;
 import org.cy.zimjava.dao.PageDAO;
-import org.cy.zimjava.util.Path;
 
 import android.util.Log;
 
@@ -32,13 +32,27 @@ public class Page {
 	private boolean is_children_loaded;
 	private boolean is_path_loaded;
 	
-	
-	public void hydrate(long id, String basename, long parentId) {
+	/**
+	 * Put values in page, and set is as created and not modified.
+	 * If id is 0, save the object in database to get an id.
+	 * @param id
+	 * @param basename
+	 * @param parentId
+	 */
+	public Page hydrate(long id, String basename, long parentId) {
+		if (this.isCreated()) {
+			Log.e("CY", "Hydrating an object already initialized.");
+		}
 		this.setId(id);
 		this.setBasename(basename);
 		this.setParentId(parentId);
-		this.setModified(false);
 		this.setCreated(true);
+		if (id == 0) {
+			this.setModified(true);
+			this.pdao.save(this);
+		}
+		this.setModified(false);
+		return this;
 	}
 	
 	public Page(PageDAO dao) {

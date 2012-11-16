@@ -7,8 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.cy.zimjava.Path;
 import org.cy.zimjava.entity.Content;
-import org.cy.zimjava.util.Path;
 
 /**
  * Class used to handle data files.

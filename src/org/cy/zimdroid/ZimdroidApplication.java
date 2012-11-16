@@ -1,21 +1,41 @@
 package org.cy.zimdroid;
 
+import java.io.File;
+
+import org.cy.zimdroid.androiddb.ZimdroidSQLiteHelper;
+import org.cy.zimdroid.dao.AndroidSQLitePageRecordDAO;
 import org.cy.zimjava.entity.Notebook;
 
 import android.app.Application;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 public class ZimdroidApplication extends Application {
 	private Notebook notebook;
 	private String notebook_uri;
 	private int isNotebookNeeded;
+	private SQLiteDatabase db;
 	
 	public Notebook createNotebook(String uri) {
 		this.notebook_uri = uri;
-		this.notebook = new Notebook(this.notebook_uri);
+		
+		// Create or fetch database
+		File f = new File(this.notebook_uri + "/.zim");
+		if (!f.isDirectory()) {
+			f.mkdirs();
+		}
+		ZimdroidSQLiteHelper zsh = new ZimdroidSQLiteHelper(this.notebook_uri + "/.zim/index.db");
+		this.db = zsh.getWritableDatabase();
+		
+		// Create necessary DAO objects
+		AndroidSQLitePageRecordDAO prdao = new AndroidSQLitePageRecordDAO(this.db);
+		
+		// Create notebook
+		this.notebook = new Notebook(this.notebook_uri, prdao);
+		this.notebook.open();
+		
 		this.isNotebookNeeded++;
 		Log.d("CY", "Creating Notebook, remaining uses: " + Integer.toString(this.isNotebookNeeded));
-		this.notebook.open();
 		return this.notebook;
 	}
 	
@@ -33,7 +53,7 @@ public class ZimdroidApplication extends Application {
 		}
 		this.isNotebookNeeded++;
 		Log.d("CY", "Getting Notebook, remaining uses: " + Integer.toString(this.isNotebookNeeded));
-		return notebook;
+		return this.notebook;
 	}
 	
 	public void releaseNotebook() {

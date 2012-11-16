@@ -1,17 +1,20 @@
 package org.cy.zimjava.entity;
 
+import org.cy.zimjava.Path;
+import org.cy.zimjava.dao.IPageRecordDAO;
 import org.cy.zimjava.dao.PageDAO;
-import org.cy.zimjava.util.Path;
 
 public class Notebook {
 
 	private String uri;
 	private PageDAO pdao;
 	private boolean open;
+	private IPageRecordDAO pageRecordDAO;
 	
-	public Notebook(String uri) {
+	public Notebook(String uri, IPageRecordDAO prdao) {
 		this.uri = uri;
 		this.open = false;
+		this.pageRecordDAO = prdao;
 	}
 	
 	public boolean isOpen() {
@@ -19,13 +22,12 @@ public class Notebook {
 	}
 	
 	public void open() {
-		this.pdao = new PageDAO(this.uri);	// TODO Verify URI
+		this.pdao = new PageDAO(this.uri, this.pageRecordDAO);	// TODO Verify URI
 		this.open = true;
 	}
 	
 	public void close() {
 		this.saveAll();
-		this.pdao.close();
 		this.pdao = null;
 		this.open = false;
 	}

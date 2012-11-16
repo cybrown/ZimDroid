@@ -1,11 +1,9 @@
 package org.cy.zimdroid.dao;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.cy.zimdroid.androiddb.ZimdroidSQLiteHelper;
 import org.cy.zimjava.dao.IPageRecordDAO;
 import org.cy.zimjava.record.PageRecord;
 
@@ -16,33 +14,15 @@ import android.util.Log;
 
 public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 
-	private String root;
 	SQLiteDatabase db;
 	HashMap<Long, PageRecord> cache;
 	
-	public AndroidSQLitePageRecordDAO(String root) {
+	public AndroidSQLitePageRecordDAO(SQLiteDatabase db) {
 		this.cache = new HashMap<Long, PageRecord>();
-		this.setRoot(root);
+		this.db = db;
 	}
 	
-	protected void setRoot(String root) {
-		this.root = root;
-		File f = new File(this.root + "/.zim");
-		if (!f.isDirectory()) {
-			f.mkdirs();
-		}
-		ZimdroidSQLiteHelper zsh = new ZimdroidSQLiteHelper(this.root + "/.zim/index.db");
-		this.db = zsh.getWritableDatabase();
-	}
-	
-	public boolean deleteById(long id) {
-		if ((this.db == null) || (!this.db.isOpen())) {
-			Log.e("CY", "DB is null or is not open.");
-		}
-		this.db.delete("pages", "id = ?", new String[]{Long.toString(id)});
-		this.cache.remove(id);
-		return true;
-	}
+	// Implements IRecordDAO<Page>
 	
 	public boolean delete(PageRecord pr) {
 		boolean res = false;
@@ -86,6 +66,17 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		return true;
 	}
 	
+	// Implements IPageRecordDAO
+	
+	public boolean deleteById(long id) {
+		if ((this.db == null) || (!this.db.isOpen())) {
+			Log.e("CY", "DB is null or is not open.");
+		}
+		this.db.delete("pages", "id = ?", new String[]{Long.toString(id)});
+		this.cache.remove(id);
+		return true;
+	}
+	
 	public PageRecord findById(long id) {
 		if ((this.db == null) || (!this.db.isOpen())) {
 			Log.e("CY", "DB is null or is not open.");
@@ -120,8 +111,10 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 	public Collection<PageRecord> findByParentId(long parent, boolean ordered) {
 		return this.backendFindByParentId(parent, ordered ? "basename" : "basename DESC");
 	}
-		
-	protected Collection<PageRecord> backendFindByParentId(long parent, String order) {
+	
+	// Internal private
+	
+	private Collection<PageRecord> backendFindByParentId(long parent, String order) {
 		if ((this.db == null) || (!this.db.isOpen())) {
 			Log.e("CY", "DB is null or is not open.");
 		}
@@ -168,9 +161,4 @@ public class AndroidSQLitePageRecordDAO implements IPageRecordDAO {
 		return prl;
 	}
 
-	public void close() {
-		if ((this.db != null) && (this.db.isOpen())) {
-			this.db.close();
-		}
-	}
 }
