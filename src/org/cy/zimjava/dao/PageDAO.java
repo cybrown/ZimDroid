@@ -57,31 +57,26 @@ public class PageDAO {
 	}
 	
 	public List<Page> findByParentId(long parent) {
-		LinkedList<Page> list = new LinkedList<Page>();
-		Page tmp;
 
-		LinkedList<Page> tmp2 = new LinkedList<Page>();
-		for (Page pr: this.cache.values()) {
-			tmp2.add(pr);
-		}
-		for (Page p: tmp2) {
+		// Looking into cache
+		LinkedList<Page> list = new LinkedList<Page>();
+		for (Page p: this.cache.values()) {
 			if ((p.getParent() != null) && (p.getParent().getId() == parent)) {
 				list.add(p);
 			}
 		}
+		
+		// Looking in persistence layer (do not add already cached objects)
+		Page tmpPage;
 		for (PageRecord pr: this.pageRecordDAO.findByParentId(parent, true)) {
-			tmp = this.findById(pr.getId());
-			if (list.contains(tmp)) {
+			tmpPage = this.findById(pr.getId());
+			if (list.contains(tmpPage) || ((tmpPage != null) && (tmpPage.getParent() != null) && tmpPage.getParent().getId() != parent)) {
 				continue;
 			}
-			if (tmp == null) {
-				tmp = new Page(this);
+			if (tmpPage == null) {
+				tmpPage = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent());
 			}
-			else if (tmp.getParent().getId() != parent)	{	// Parent's id has changed since database write
-				continue;
-			}
-			tmp.hydrate(pr.getId(), pr.getBasename(), pr.getParent());
-			list.add(tmp);
+			list.add(tmpPage);
 		}
 		return list;
 	}

@@ -40,9 +40,6 @@ public class Page {
 	 * @param parentId
 	 */
 	public Page hydrate(long id, String basename, long parentId) {
-		if (this.isCreated()) {
-			Log.e("CY", "Hydrating an object already initialized.");
-		}
 		this.setId(id);
 		this.setBasename(basename);
 		this.setParentId(parentId);
