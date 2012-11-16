@@ -76,6 +76,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 	private ArrayAdapter<String> adapter;			// From listOfChildrenName
 	private long lastBackPressed;
 	PathManager pathManager;
+	boolean savingInProgress;
 	
 	// Views
 	private EditText txtBody;
@@ -204,9 +205,13 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
     	this.autoSave.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				if (savingInProgress)
+					return;
+				savingInProgress = true;
 				if (that.getNotebook().saveAll()) {
 					Log.d("CY", "Autosave...");
 				}
+				savingInProgress = false;
 			}
         }, 1000, 5000);
     }
