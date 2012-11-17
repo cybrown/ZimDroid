@@ -48,7 +48,12 @@ public class PageDAO {
 				res = new Page(this).hydrate(pr.getId(), pr.getBasename(), pr.getParent(), pr.getContentkey(), pr.getChildrenkey());
 				this.cache.put(id, res);
 			}
-			System.out.println("Loading (" + id + ") " + res.getPath().toString());
+			try {
+				System.out.println("Loading (" + id + ") " + res.getPath().toString());
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Loading (" + id + ") no path due to null pointer exception.");
+			}
 		}
 		return res;
 	}
