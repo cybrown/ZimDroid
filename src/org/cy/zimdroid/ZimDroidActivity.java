@@ -70,6 +70,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 	private Page currentViewerPage;
 	private boolean fullscreen;
 	private HistoryManager historyManager;
+	private Page pageToMove;
 	
 	// Generated
 	private LinkedList<String> listOfChildrenName;	// From currentBrowserPage.getParent()
@@ -84,6 +85,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 	private ListView lstNotes;
 	private WebView wvBody;
 	private LinearLayout lytPathbtn;
+	private Button btnMove;
 	
 	//???
 	private String notebook_uri;	// Get from intent
@@ -105,6 +107,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
     	this.txtBody = (EditText)findViewById(R.id.txtBody);
     	this.wvBody = (WebView)findViewById(R.id.wvBody);
     	this.lytPathbtn = (LinearLayout)findViewById(R.id.lytPathbtn);
+    	this.btnMove = (Button)findViewById(R.id.btnMove);
     	final ZimDroidActivity that = this;
     		// Initializing clicking on a link in webview
     	this.wvBody.setWebViewClient(new WebViewClient() {
@@ -146,6 +149,14 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
     				savedInstanceState.getBoolean("navShown") ? View.VISIBLE : View.GONE);
         	this.fullscreen = savedInstanceState.getBoolean("fullscreen");
         	saved_history = savedInstanceState.getLongArray("history");
+        	long pageToMove_id = savedInstanceState.getLong("pageToMove");
+        	if (pageToMove_id == 0) {
+        		this.pageToMove = null;
+        	}
+        	else {
+        		this.pageToMove = this.notebook.findById(pageToMove_id);
+        	}
+        	this.applyBtnMove();
         }
         else {
         	// Remove this part ???
@@ -188,6 +199,7 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
         savedInstanceState.putBoolean("navShown", this.lytNav.getVisibility() == View.VISIBLE);
         savedInstanceState.putBoolean("fullscreen", this.fullscreen);
         savedInstanceState.putLongArray("history", this.historyManager.getState());
+        savedInstanceState.putLong("pageToMove", pageToMove == null ? 0 : pageToMove.getId());
     }
     
     @Override
@@ -283,7 +295,37 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 		this.applyFullscreen();
 	}
 	
+	public void btn_move_click(View v) {
+		if (this.pageToMove == null) {
+			this.pageToMove = this.currentViewerPage;
+		}
+		else {
+			this.pageToMove.setParent(this.currentBrowserPage);
+			this.pageToMove = null;
+			this.browsePage(this.currentBrowserPage);
+		}
+		this.applyBtnMove();
+	}
+	
 	// Private methods
+	
+	private void applyBtnMove() {
+		if (this.pageToMove == null) {
+			this.btnMove.setText("Move");
+		}
+		else {
+			this.btnMove.setText("Paste");
+		}
+	}
+	
+	/**
+	 * Mave page to another parent.
+	 * @param page
+	 * @param newParent
+	 */
+	protected void movePage(Page page, Page newParent) {
+		page.setParent(newParent);
+	}
 	
 	/**
 	 * Put a page in the viewer and browser.

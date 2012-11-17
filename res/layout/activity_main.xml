@@ -85,6 +85,13 @@
                         android:textOff="Fullscreen"
                         android:textOn="Fullscreen" />
 
+                    <Button
+                        android:id="@+id/btnMove"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="btn_move_click"
+                        android:text="Move" />
+
                 </LinearLayout>
 
 		        <ToggleButton
