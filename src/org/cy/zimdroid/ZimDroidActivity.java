@@ -76,8 +76,9 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 	private LinkedList<String> listOfChildrenName;	// From currentBrowserPage.getParent()
 	private ArrayAdapter<String> adapter;			// From listOfChildrenName
 	private long lastBackPressed;
-	PathManager pathManager;
+	private PathManager pathManager;
 	boolean savingInProgress;
+	private Timer autoSave;
 	
 	// Views
 	private EditText txtBody;
@@ -89,9 +90,9 @@ public class ZimDroidActivity extends Activity implements OnItemClickListener, O
 	
 	//???
 	private String notebook_uri;	// Get from intent
-	Timer autoSave;
 	
 	// Activity Life Cycle
+	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
