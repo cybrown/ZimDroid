@@ -1,4 +1,4 @@
-package org.cy.zimdroid;
+package org.cy.zimdroid.activity;
 
 
 import java.util.Collections;
@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.cy.zimdroid.R;
+import org.cy.zimdroid.ZimdroidApplication;
 import org.cy.zimjava.Path;
 import org.cy.zimjava.ZimSyntax;
 import org.cy.zimjava.entity.Notebook;

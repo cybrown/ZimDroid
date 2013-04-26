@@ -63,7 +63,7 @@ public class ZimdroidSQLiteHelper extends SQLiteOpenHelper {
 	public SQLiteDatabase getWritableDatabase()
 	{
 		verifyDbFile();
-	    database = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE);
+	    database = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE | SQLiteDatabase.CREATE_IF_NECESSARY);
 	    if (this.mustCreate) {
 	    	this.onCreate(this.database);
 			this.mustCreate = false;
@@ -74,13 +74,7 @@ public class ZimdroidSQLiteHelper extends SQLiteOpenHelper {
 	private void verifyDbFile() {
 		File f = new File(this.path);
 		if (!f.isFile()) {
-			try {
-				f.createNewFile();
-				this.mustCreate = true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			this.mustCreate = true;
 		}
 	}
 }
